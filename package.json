@@ -1,0 +1,28 @@
+{
+  "name": "anonymous_predicting_market",
+  "version": "1.0.0",
+  "description": "Anonymous Predicting Market",
+  "scripts": {
+    "build:bet": "bash ./scripts/compile.sh circuits/Bet_main && bash ./scripts/cpcircuit.sh circuits/Bet",
+    "build:open": "bash ./scripts/compile.sh circuits/BatchOpen_main && bash ./scripts/cpcircuit.sh circuits/BatchOpen",
+    "build:circuits": "npm run build:bet && npm run build:open",
+    "setup:ptau": "wget -O pot_final.ptau https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_19.ptau",
+    "build": "npm run build:circuits",
+    "test:gas": "cross-env REPORT_GAS=true hardhat test",
+    "test": "hardhat test",
+    "dev:circuit": "nodemon --watch circuits --ext circom --exec circom -l ./node_modules",
+    "compile": "hardhat compile",
+    "chain": "hardhat node"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.6.1",
+    "ethers": "^6.0.0",
+    "hardhat": "^2.19.0",
+    "nodemon": "^3.1.10",
+    "snarkjs": "^0.7.5"
+  }
+}

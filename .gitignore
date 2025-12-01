@@ -1,0 +1,10 @@
+pot_final.ptau
+node_modules
+cache
+artifacts
+*_obj/
+src/generated/
+obj/
+.env
+*_temp_*
+temp_*
