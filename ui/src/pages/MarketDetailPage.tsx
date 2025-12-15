@@ -22,6 +22,7 @@ export function MarketDetailPage() {
   const { isConnected, connect } = useWallet();
   const [betAmount, setBetAmount] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<'yes' | 'no' | null>(null);
+  const quickAmounts = ['0.1', '0.5', '1', '2', '5'];
 
   if (!market) {
     return (
@@ -157,6 +158,19 @@ export function MarketDetailPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="amount">Amount (ETH)</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {quickAmounts.map((amount) => (
+                          <Button
+                            key={amount}
+                            type="button"
+                            size="sm"
+                            variant={betAmount === amount ? 'secondary' : 'outline'}
+                            onClick={() => setBetAmount(amount)}
+                          >
+                            {amount}
+                          </Button>
+                        ))}
+                      </div>
                       <Input
                         id="amount"
                         type="number"
