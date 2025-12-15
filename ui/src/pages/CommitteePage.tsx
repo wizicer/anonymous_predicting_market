@@ -2,7 +2,6 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useWallet } from '@/contexts/WalletContext';
-import { mockMarkets } from '@/lib/mock-data';
 import { 
   Shield, Key, Lock 
 } from 'lucide-react';
@@ -17,11 +16,6 @@ export function CommitteePage() {
   const navigate = useNavigate();
 
   const activeTab: TabType = location.pathname.includes('/committee/decrypt') ? 'decrypt' : 'keygen';
-
-  const preparingMarkets = mockMarkets.filter(m => m.status === 'preparing');
-  const decryptingMarkets = mockMarkets.filter(
-    m => m.status === 'expired'
-  );
 
   if (!isConnected) {
     return (
@@ -74,17 +68,13 @@ export function CommitteePage() {
         <Route
           path="keygen"
           element={
-            <CommitteeKeyGenerationPage
-              preparingMarkets={preparingMarkets}
-            />
+            <CommitteeKeyGenerationPage />
           }
         />
         <Route
           path="decrypt"
           element={
-            <CommitteeDecryptionPage
-              decryptingMarkets={decryptingMarkets}
-            />
+            <CommitteeDecryptionPage />
           }
         />
       </Routes>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useWallet } from '@/contexts/WalletContext';
+import { mockMarkets } from '@/lib/mock-data';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -12,13 +13,11 @@ import { CheckCircle, FileKey, Key, Loader2, Users } from 'lucide-react';
 
 type LoadingStates = Record<string, boolean>;
 
-export function CommitteeKeyGenerationPage({
-  preparingMarkets,
-}: {
-  preparingMarkets: Market[];
-}) {
+export function CommitteeKeyGenerationPage() {
   const { address } = useWallet();
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
+
+  const preparingMarkets: Market[] = mockMarkets.filter(m => m.status === 'preparing');
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));

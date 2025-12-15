@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
+import { mockMarkets } from '@/lib/mock-data';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -13,12 +14,10 @@ type LoadingStates = Record<string, boolean>;
 
 type DecryptStep = 'download' | 'proof' | 'upload';
 
-export function CommitteeDecryptionPage({
-  decryptingMarkets,
-}: {
-  decryptingMarkets: Market[];
-}) {
+export function CommitteeDecryptionPage() {
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
+
+  const decryptingMarkets: Market[] = mockMarkets.filter(m => m.status === 'expired');
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));
