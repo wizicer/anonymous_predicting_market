@@ -89,7 +89,7 @@ export function CommitteeDecryptionPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Decryption Progress</span>
-                      <span>{decryptedCount} / {market.committee.length} keys submitted</span>
+                      <span>{decryptedCount} / {market.minimumCommittee} keys submitted (committee: {market.committee.length})</span>
                     </div>
                     <div className="h-2 rounded-full bg-muted overflow-hidden">
                       <div
@@ -111,9 +111,9 @@ export function CommitteeDecryptionPage() {
                       {loadingStates[`download-${market.id}`] ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <Download className="h-5 w-5" />
+                        <Shield className="h-5 w-5" />
                       )}
-                      <span className="text-xs mt-1">1. Download</span>
+                      <span className="text-xs mt-1">1. Prove and Disclose</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -125,9 +125,9 @@ export function CommitteeDecryptionPage() {
                       {loadingStates[`proof-${market.id}`] ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
-                        <Shield className="h-5 w-5" />
+                        <Download className="h-5 w-5" />
                       )}
-                      <span className="text-xs mt-1">2. Gen Proof</span>
+                      <span className="text-xs mt-1">2. Local Decrypt</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -141,7 +141,7 @@ export function CommitteeDecryptionPage() {
                       ) : (
                         <Upload className="h-5 w-5" />
                       )}
-                      <span className="text-xs mt-1">3. Upload</span>
+                      <span className="text-xs mt-1">3. Batch Prove</span>
                     </Button>
                   </div>
 
