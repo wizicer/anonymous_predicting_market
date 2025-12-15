@@ -18,9 +18,12 @@ export function CreateMarketPage() {
     question: 'Will Bitcoin reach $150,000 by end of 2025?',
     description: '',
     category: 'crypto',
-    expirationDate: '',
+    beginDate: '2025-12-25',
+    beginTime: '',
+    expirationDate: '2026-01-15',
     expirationTime: '',
     minCommittee: 3,
+    maxCommittee: 5,
     requiredReputation: 100,
   });
 
@@ -120,16 +123,35 @@ export function CreateMarketPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              Expiration
+              Duration
             </CardTitle>
             <CardDescription>
-              When should betting close for this market?
+              When should betting start and end for this market?
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="expDate">Date *</Label>
+                <Label htmlFor="expDate">Begin Date *</Label>
+                <Input
+                  id="expDate"
+                  type="date"
+                  value={formData.beginDate}
+                  onChange={(e) => updateField('beginDate', e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expTime">Begin Time (Optional)</Label>
+                <Input
+                  id="expTime"
+                  type="time"
+                  value={formData.beginTime}
+                  onChange={(e) => updateField('beginTime', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expDate">End Date *</Label>
                 <Input
                   id="expDate"
                   type="date"
@@ -139,7 +161,7 @@ export function CreateMarketPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="expTime">Time (Optional)</Label>
+                <Label htmlFor="expTime">End Time (Optional)</Label>
                 <Input
                   id="expTime"
                   type="time"
@@ -173,6 +195,17 @@ export function CreateMarketPage() {
                   max={10}
                   value={formData.minCommittee}
                   onChange={(e) => updateField('minCommittee', parseInt(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="maxCommittee">Target Committee Size</Label>
+                <Input
+                  id="maxCommittee"
+                  type="number"
+                  min={2}
+                  max={10}
+                  value={formData.maxCommittee}
+                  onChange={(e) => updateField('maxCommittee', parseInt(e.target.value))}
                 />
               </div>
               <div className="space-y-2">
