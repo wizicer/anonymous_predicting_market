@@ -29,11 +29,13 @@ const generateBets = (count: number, revealed: boolean = false): EncryptedBet[] 
       commitment: randomHex(64),
       encryptedData: randomHex(128),
       timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-      ...(revealed ? {
-        position,
-        amount: Math.floor(Math.random() * 10) + 0.1,
-        proof: randomHex(256),
-      } : {}),
+      ...(revealed
+        ? {
+            position,
+            amount: Math.floor(Math.random() * 10) + 0.1,
+            proof: Math.floor(Math.random() * 10) <= 2 ? "" : randomHex(256),
+          }
+        : {}),
     };
   });
 

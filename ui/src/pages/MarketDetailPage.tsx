@@ -43,10 +43,13 @@ export function MarketDetailPage() {
   const isActive = market.status === 'active';
   const committeeProgress = (market.committee.length / market.requiredCommittee) * 100;
 
-  const handlePlaceBet = () => {
+  const handlePlaceBet = (mode: 'verified' | 'unverified') => {
     if (!selectedPosition || !betAmount) return;
     toast.success(`Bet placed: ${betAmount} ETH on ${selectedPosition.toUpperCase()}`, {
-      description: 'Your bet has been encrypted and submitted',
+      description:
+        mode === 'verified'
+          ? 'Your bet has been verified and submitted'
+          : 'Your bet has been submitted without verification',
     });
     setBetAmount('');
     setSelectedPosition(null);
@@ -181,14 +184,25 @@ export function MarketDetailPage() {
                         onChange={(e) => setBetAmount(e.target.value)}
                       />
                     </div>
-                    <Button
-                      className="w-full"
-                      disabled={!selectedPosition || !betAmount}
-                      onClick={handlePlaceBet}
-                    >
-                      <Lock className="h-4 w-4 mr-2" />
-                      Place Encrypted Bet
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        className="w-full"
+                        disabled={!selectedPosition || !betAmount}
+                        onClick={() => handlePlaceBet('verified')}
+                      >
+                        <Shield className="h-4 w-4 mr-2" />
+                        Place Verified Bet
+                      </Button>
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        disabled={!selectedPosition || !betAmount}
+                        onClick={() => handlePlaceBet('unverified')}
+                      >
+                        <Lock className="h-4 w-4 mr-2" />
+                        Place Unverified Bet
+                      </Button>
+                    </div>
                     <p className="text-xs text-muted-foreground text-center">
                       Your bet will be encrypted and hidden until resolution
                     </p>
