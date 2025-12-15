@@ -1,27 +1,45 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
+import { useWallet } from '@/contexts/WalletContext';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
+import { toast } from 'sonner';
 import { CheckCircle, FileKey, Key, Loader2, Users } from 'lucide-react';
 
 type LoadingStates = Record<string, boolean>;
 
 export function CommitteeKeyGenerationPage({
   preparingMarkets,
-  address,
-  loadingStates,
-  onJoinCommittee,
-  onContributeKey,
 }: {
   preparingMarkets: Market[];
-  address?: string;
-  loadingStates: LoadingStates;
-  onJoinCommittee: (marketId: string) => void;
-  onContributeKey: (marketId: string) => void;
 }) {
+  const { address } = useWallet();
+  const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
+
+  const setLoading = (key: string, value: boolean) => {
+    setLoadingStates(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleJoinCommittee = async (marketId: string) => {
+    setLoading(`join-${marketId}`, true);
+    await new Promise(r => setTimeout(r, 1000));
+    toast.success('Joined committee successfully!');
+    setLoading(`join-${marketId}`, false);
+  };
+
+  const handleContributeKey = async (marketId: string) => {
+    setLoading(`key-${marketId}`, true);
+    await new Promise(r => setTimeout(r, 1500));
+    toast.success('Key share contributed!', {
+      description: 'Your ephemeral key share has been submitted.',
+    });
+    setLoading(`key-${marketId}`, false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Info Card */}
@@ -105,7 +123,7 @@ export function CommitteeKeyGenerationPage({
                   <div className="flex gap-2 pt-2">
                     {!isJoined ? (
                       <Button
-                        onClick={() => onJoinCommittee(market.id)}
+                        onClick={() => handleJoinCommittee(market.id)}
                         disabled={loadingStates[`join-${market.id}`]}
                       >
                         {loadingStates[`join-${market.id}`] && (
@@ -116,7 +134,7 @@ export function CommitteeKeyGenerationPage({
                     ) : (
                       <Button
                         variant="secondary"
-                        onClick={() => onContributeKey(market.id)}
+                        onClick={() => handleContributeKey(market.id)}
                         disabled={loadingStates[`key-${market.id}`]}
                       >
                         {loadingStates[`key-${market.id}`] ? (

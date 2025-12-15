@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,19 +6,39 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
+import { toast } from 'sonner';
 import { CheckCircle, Download, Loader2, Lock, Shield, Upload } from 'lucide-react';
 
 type LoadingStates = Record<string, boolean>;
 
+type DecryptStep = 'download' | 'proof' | 'upload';
+
 export function CommitteeDecryptionPage({
   decryptingMarkets,
-  loadingStates,
-  onDecrypt,
 }: {
   decryptingMarkets: Market[];
-  loadingStates: LoadingStates;
-  onDecrypt: (marketId: string, step: 'download' | 'proof' | 'upload') => void;
 }) {
+  const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
+
+  const setLoading = (key: string, value: boolean) => {
+    setLoadingStates(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleDecrypt = async (marketId: string, step: DecryptStep) => {
+    const key = `${step}-${marketId}`;
+    setLoading(key, true);
+    await new Promise(r => setTimeout(r, 1500));
+
+    const messages = {
+      download: 'Encrypted bets downloaded',
+      proof: 'ZK proof generated successfully',
+      upload: 'Decryption results uploaded',
+    };
+
+    toast.success(messages[step]);
+    setLoading(key, false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Info Card */}
@@ -84,7 +105,7 @@ export function CommitteeDecryptionPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onDecrypt(market.id, 'download')}
+                      onClick={() => handleDecrypt(market.id, 'download')}
                       disabled={loadingStates[`download-${market.id}`]}
                       className="flex-col h-auto py-3"
                     >
@@ -98,7 +119,7 @@ export function CommitteeDecryptionPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onDecrypt(market.id, 'proof')}
+                      onClick={() => handleDecrypt(market.id, 'proof')}
                       disabled={loadingStates[`proof-${market.id}`]}
                       className="flex-col h-auto py-3"
                     >
@@ -112,7 +133,7 @@ export function CommitteeDecryptionPage({
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onDecrypt(market.id, 'upload')}
+                      onClick={() => handleDecrypt(market.id, 'upload')}
                       disabled={loadingStates[`upload-${market.id}`]}
                       className="flex-col h-auto py-3"
                     >
