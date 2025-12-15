@@ -56,7 +56,7 @@ export const mockMarkets: Market[] = [
     requiredCommittee: 5,
     requiredReputation: 100,
     publicKey: randomHex(128),
-    bets: generateBets(47),
+    bets: generateBets(47, true),
   },
   {
     id: 'market-2',
@@ -93,7 +93,7 @@ export const mockMarkets: Market[] = [
     requiredCommittee: 5,
     requiredReputation: 100,
     publicKey: randomHex(128),
-    bets: generateBets(32),
+    bets: generateBets(32, true),
   },
   {
     id: 'market-4',
@@ -112,7 +112,7 @@ export const mockMarkets: Market[] = [
     requiredCommittee: 6,
     requiredReputation: 200,
     publicKey: randomHex(128),
-    bets: generateBets(89),
+    bets: generateBets(89, true),
   },
   {
     id: 'market-5',
@@ -196,7 +196,7 @@ export const mockMarkets: Market[] = [
     requiredCommittee: 5,
     requiredReputation: 100,
     publicKey: randomHex(128),
-    bets: generateBets(28),
+    bets: generateBets(28, true),
   },
 ];
 

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { StatusBadge } from '@/components/StatusBadge';
 import { EncryptedIndicator, ZkProofBadge } from '@/components/EncryptedIndicator';
 import { useWallet } from '@/contexts/WalletContext';
-import { formatDate, formatDateTime, formatAmount, truncateAddress, truncateHash, formatRelativeTime } from '@/lib/utils';
+import { formatDate, formatAmount, truncateAddress, truncateHash, formatRelativeTime } from '@/lib/utils';
 import { useState } from 'react';
 import { 
   ArrowLeft, Clock, TrendingUp, Users, Lock, 
@@ -146,7 +146,7 @@ export function MarketDetailPage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="font-mono text-sm">{truncateAddress(bet.bettor)}</span>
-                          {isResolved && bet.proof && <ZkProofBadge />}
+                          {bet.proof && <ZkProofBadge />}
                         </div>
                         <span className="text-xs text-muted-foreground font-mono">
                           {truncateHash(bet.commitment, 12)}
@@ -154,22 +154,17 @@ export function MarketDetailPage() {
                       </div>
                       <div className="text-right">
                         {isResolved && bet.position ? (
-                          <>
-                            <span className={`font-medium ${bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
-                              {bet.position.toUpperCase()}
-                            </span>
-                            <p className="text-sm text-muted-foreground">
-                              {formatAmount(bet.amount!)} ETH
-                            </p>
-                          </>
+                          <span className={`font-medium ${bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
+                            {bet.position.toUpperCase()}
+                          </span>
                         ) : (
-                          <>
-                            <span className="font-mono text-muted-foreground">••••••</span>
-                            <p className="text-xs text-muted-foreground">
-                              {formatDateTime(bet.timestamp)}
-                            </p>
-                          </>
+                          <span className="font-mono text-muted-foreground">
+                            <Lock className="h-4 w-4" />
+                          </span>
                         )}
+                        <p className="text-sm text-muted-foreground">
+                          {bet.amount != null ? formatAmount(bet.amount) : '--'} ETH
+                        </p>
                       </div>
                     </div>
                   ))}
