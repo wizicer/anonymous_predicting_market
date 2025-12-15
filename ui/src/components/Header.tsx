@@ -38,7 +38,7 @@ export function Header() {
               {navItems.map(({ path, label, icon: Icon }) => (
                 <Link key={path} to={path}>
                   <Button
-                    variant={location.pathname === path ? 'secondary' : 'ghost'}
+                    variant={location.pathname === path || location.pathname.startsWith(`${path}/`) ? 'secondary' : 'ghost'}
                     size="sm"
                     className="gap-2"
                   >
@@ -96,7 +96,7 @@ export function Header() {
           {navItems.map(({ path, label, icon: Icon }) => (
             <Link key={path} to={path}>
               <Button
-                variant={location.pathname === path ? 'secondary' : 'ghost'}
+                variant={location.pathname === path || location.pathname.startsWith(`${path}/`) ? 'secondary' : 'ghost'}
                 size="sm"
                 className="flex-col gap-1 h-auto py-2"
               >

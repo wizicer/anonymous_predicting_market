@@ -21,7 +21,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/market/:id" element={<MarketDetailPage />} />
               <Route path="/create" element={<CreateMarketPage />} />
-              <Route path="/committee" element={<CommitteePage />} />
+              <Route path="/committee/*" element={<CommitteePage />} />
               <Route path="/oracle" element={<OraclePage />} />
             </Routes>
           </main>
