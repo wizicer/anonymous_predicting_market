@@ -9,7 +9,7 @@ import { mockMarkets } from '@/lib/mock-data';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
-import { CheckCircle, FileKey, Key, Loader2, Users } from 'lucide-react';
+import { CheckCircle, FileKey, Loader2, Users } from 'lucide-react';
 
 type LoadingStates = Record<string, boolean>;
 
@@ -24,19 +24,54 @@ export function CommitteeKeyGenerationPage() {
   };
 
   const handleJoinCommittee = async (marketId: string) => {
+    if (!address) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
     setLoading(`join-${marketId}`, true);
     await new Promise(r => setTimeout(r, 1000));
+
+    const market = mockMarkets.find(m => m.id === marketId);
+    if (!market) {
+      toast.error('Market not found');
+      setLoading(`join-${marketId}`, false);
+      return;
+    }
+
+    if (market.committee.length >= market.requiredCommittee) {
+      toast.error('Committee is already full');
+      setLoading(`join-${marketId}`, false);
+      return;
+    }
+
+    const isAlreadyJoined = market.committee.some(
+      m => m.address.toLowerCase() === address.toLowerCase()
+    );
+    if (isAlreadyJoined) {
+      toast.info('You are already in the committee');
+      setLoading(`join-${marketId}`, false);
+      return;
+    }
+
+    market.committee.push({
+      address,
+      reputation: 200,
+      keyShareSubmitted: true,
+      decryptionSubmitted: false,
+    });
+
     toast.success('Joined committee successfully!');
     setLoading(`join-${marketId}`, false);
   };
 
-  const handleContributeKey = async (marketId: string) => {
-    setLoading(`key-${marketId}`, true);
+  const handleProvePublicKey = async (marketId: string) => {
+    setLoading(`prove-${marketId}`, true);
     await new Promise(r => setTimeout(r, 1500));
-    toast.success('Key share contributed!', {
-      description: 'Your ephemeral key share has been submitted.',
+    toast.success('Public key proof submitted!', {
+      description: 'Mock verification successful.',
     });
-    setLoading(`key-${marketId}`, false);
+    setLoading(`prove-${marketId}`, false);
   };
 
   return (
@@ -71,6 +106,7 @@ export function CommitteeKeyGenerationPage() {
             const isJoined = market.committee.some(
               m => m.address.toLowerCase() === address?.toLowerCase()
             );
+            const isFull = market.committee.length >= market.requiredCommittee;
 
             return (
               <Card key={market.id}>
@@ -120,28 +156,28 @@ export function CommitteeKeyGenerationPage() {
 
                   {/* Actions */}
                   <div className="flex gap-2 pt-2">
-                    {!isJoined ? (
+                    {!isJoined && (
                       <Button
                         onClick={() => handleJoinCommittee(market.id)}
-                        disabled={loadingStates[`join-${market.id}`]}
+                        disabled={loadingStates[`join-${market.id}`] || isFull}
                       >
                         {loadingStates[`join-${market.id}`] && (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         )}
                         Join as Committee
                       </Button>
-                    ) : (
+                    )}
+
+                    {isFull && (
                       <Button
-                        variant="secondary"
-                        onClick={() => handleContributeKey(market.id)}
-                        disabled={loadingStates[`key-${market.id}`]}
+                        onClick={() => handleProvePublicKey(market.id)}
+                        disabled={loadingStates[`prove-${market.id}`]}
+                        className="ml-auto"
                       >
-                        {loadingStates[`key-${market.id}`] ? (
+                        {loadingStates[`prove-${market.id}`] && (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Key className="h-4 w-4 mr-2" />
                         )}
-                        Contribute Key Share
+                        Prove Public Key
                       </Button>
                     )}
                   </div>
