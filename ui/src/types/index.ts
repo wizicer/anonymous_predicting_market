@@ -1,5 +1,5 @@
 // Market status types
-export type MarketStatus = 'preparing' | 'active' | 'expired' | 'decrypting' | 'resolved';
+export type MarketStatus = 'preparing' | 'active' | 'expired' | 'resolved';
 export type BetPosition = 'yes' | 'no';
 
 // Committee member interface

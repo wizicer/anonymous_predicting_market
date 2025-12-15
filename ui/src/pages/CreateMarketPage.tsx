@@ -200,8 +200,7 @@ export function CreateMarketPage() {
                 <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
                   <li><strong>Preparing:</strong> Market created, awaiting committee formation</li>
                   <li><strong>Active:</strong> Committee threshold met, accepting encrypted bets</li>
-                  <li><strong>Expired:</strong> Betting closed, awaiting ground truth</li>
-                  <li><strong>Decrypting:</strong> Committee submitting decryption keys</li>
+                  <li><strong>Expired:</strong> Betting closed, awaiting resolution</li>
                   <li><strong>Resolved:</strong> Bets revealed, payouts available</li>
                 </ol>
               </div>

@@ -172,7 +172,7 @@ export const mockMarkets: Market[] = [
     question: 'Will Solana flip Ethereum in market cap by 2025?',
     description: 'Resolves YES if Solana market cap exceeds Ethereum market cap at any point during 2025.',
     category: 'crypto',
-    status: 'decrypting',
+    status: 'expired',
     expiresAt: new Date('2025-01-15'),
     createdAt: new Date('2024-08-01'),
     yesPercentage: 0,
@@ -257,4 +257,4 @@ export const getMarketById = (id: string): Market | undefined =>
 
 // Get markets awaiting oracle
 export const getMarketsAwaitingOracle = (): Market[] => 
-  mockMarkets.filter(m => m.status === 'expired' || m.status === 'decrypting');
+  mockMarkets.filter(m => m.status === 'expired' );

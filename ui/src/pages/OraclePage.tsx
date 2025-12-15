@@ -23,7 +23,7 @@ export function OraclePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const awaitingMarkets = mockMarkets.filter(
-    m => m.status === 'expired' || m.status === 'decrypting'
+    m => m.status === 'expired'
   );
 
   const handleSubmit = async () => {

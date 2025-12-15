@@ -26,7 +26,7 @@ const features = [
   },
 ];
 
-const statusOrder: MarketStatus[] = ['active', 'preparing', 'decrypting', 'expired', 'resolved'];
+const statusOrder: MarketStatus[] = ['active', 'preparing', 'expired', 'resolved'];
 
 export function HomePage() {
   const marketsByStatus = statusOrder.reduce((acc, status) => {
@@ -71,7 +71,6 @@ export function HomePage() {
           preparing: 'Preparing Markets',
           active: 'Active Markets',
           expired: 'Awaiting Resolution',
-          decrypting: 'Decrypting',
           resolved: 'Resolved Markets',
         };
         

@@ -22,7 +22,7 @@ export function CommitteePage() {
 
   const preparingMarkets = mockMarkets.filter(m => m.status === 'preparing');
   const decryptingMarkets = mockMarkets.filter(
-    m => m.status === 'expired' || m.status === 'decrypting'
+    m => m.status === 'expired'
   );
 
   const setLoading = (key: string, value: boolean) => {

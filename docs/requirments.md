@@ -16,7 +16,7 @@ A proof-of-concept prediction market platform focused on **anonymous betting** u
 ### Market Lifecycle
 
 ```
-PREPARING → ACTIVE → EXPIRED → DECRYPTING → RESOLVED
+PREPARING → ACTIVE → EXPIRED → RESOLVED
 ```
 
 | Status | Description |
@@ -24,7 +24,6 @@ PREPARING → ACTIVE → EXPIRED → DECRYPTING → RESOLVED
 | **Preparing** | Market created, awaiting committee formation |
 | **Active** | Committee threshold met, accepting encrypted bets |
 | **Expired** | Betting closed, awaiting ground truth and decryption |
-| **Decrypting** | Committee submitting their ephermal key |
 | **Resolved** | Ground truth applied, bets revealed, payouts available |
 
 ## User Roles

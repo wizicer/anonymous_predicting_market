@@ -20,10 +20,6 @@ const statusConfig: Record<MarketStatus, { label: string; className: string }> =
     label: 'AWAITING RESOLUTION',
     className: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
   },
-  decrypting: {
-    label: 'DECRYPTING',
-    className: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  },
   resolved: {
     label: 'RESOLVED',
     className: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
