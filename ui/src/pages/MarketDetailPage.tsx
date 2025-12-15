@@ -123,6 +123,67 @@ export function MarketDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Betting Panel */}
+          {isActive && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-purple-400" />
+                  Place Encrypted Bet
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!isConnected ? (
+                  <Button onClick={connect} className="w-full">
+                    Connect Wallet to Bet
+                  </Button>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant={selectedPosition === 'yes' ? 'default' : 'outline'}
+                        className={selectedPosition === 'yes' ? 'bg-green-600 hover:bg-green-700' : ''}
+                        onClick={() => setSelectedPosition('yes')}
+                      >
+                        YES
+                      </Button>
+                      <Button
+                        variant={selectedPosition === 'no' ? 'default' : 'outline'}
+                        className={selectedPosition === 'no' ? 'bg-red-600 hover:bg-red-700' : ''}
+                        onClick={() => setSelectedPosition('no')}
+                      >
+                        NO
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">Amount (ETH)</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="0.00"
+                        value={betAmount}
+                        onChange={(e) => setBetAmount(e.target.value)}
+                      />
+                    </div>
+                    <Button
+                      className="w-full"
+                      disabled={!selectedPosition || !betAmount}
+                      onClick={handlePlaceBet}
+                    >
+                      <Lock className="h-4 w-4 mr-2" />
+                      Place Encrypted Bet
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Your bet will be encrypted and hidden until resolution
+                    </p>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Bets List */}
           <Card>
             <CardHeader>
@@ -220,67 +281,6 @@ export function MarketDetailPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Betting Panel */}
-          {isActive && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-purple-400" />
-                  Place Encrypted Bet
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {!isConnected ? (
-                  <Button onClick={connect} className="w-full">
-                    Connect Wallet to Bet
-                  </Button>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant={selectedPosition === 'yes' ? 'default' : 'outline'}
-                        className={selectedPosition === 'yes' ? 'bg-green-600 hover:bg-green-700' : ''}
-                        onClick={() => setSelectedPosition('yes')}
-                      >
-                        YES
-                      </Button>
-                      <Button
-                        variant={selectedPosition === 'no' ? 'default' : 'outline'}
-                        className={selectedPosition === 'no' ? 'bg-red-600 hover:bg-red-700' : ''}
-                        onClick={() => setSelectedPosition('no')}
-                      >
-                        NO
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="amount">Amount (ETH)</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="0.00"
-                        value={betAmount}
-                        onChange={(e) => setBetAmount(e.target.value)}
-                      />
-                    </div>
-                    <Button
-                      className="w-full"
-                      disabled={!selectedPosition || !betAmount}
-                      onClick={handlePlaceBet}
-                    >
-                      <Lock className="h-4 w-4 mr-2" />
-                      Place Encrypted Bet
-                    </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      Your bet will be encrypted and hidden until resolution
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Committee */}
           <Card>
