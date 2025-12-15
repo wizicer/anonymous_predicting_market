@@ -185,23 +185,33 @@ export function MarketDetailPage() {
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        className="w-full"
-                        disabled={!selectedPosition || !betAmount}
-                        onClick={() => handlePlaceBet('verified')}
-                      >
-                        <Shield className="h-4 w-4 mr-2" />
-                        Place Verified Bet
-                      </Button>
-                      <Button
-                        className="w-full"
-                        variant="outline"
-                        disabled={!selectedPosition || !betAmount}
-                        onClick={() => handlePlaceBet('unverified')}
-                      >
-                        <Lock className="h-4 w-4 mr-2" />
-                        Place Unverified Bet
-                      </Button>
+                      <div className="space-y-1">
+                        <Button
+                          className="w-full"
+                          disabled={!selectedPosition || !betAmount}
+                          onClick={() => handlePlaceBet('verified')}
+                        >
+                          <Shield className="h-4 w-4 mr-2" />
+                          Place Verified Bet
+                        </Button>
+                        <p className="text-[11px] leading-4 text-muted-foreground">
+                          Requires proof generation (takes time) and costs more gas.
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <Button
+                          className="w-full"
+                          variant="outline"
+                          disabled={!selectedPosition || !betAmount}
+                          onClick={() => handlePlaceBet('unverified')}
+                        >
+                          <Lock className="h-4 w-4 mr-2" />
+                          Place Unverified Bet
+                        </Button>
+                        <p className="text-[11px] leading-4 text-muted-foreground">
+                          No proof required (faster) and costs less gas.
+                        </p>
+                      </div>
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
                       Your bet will be encrypted and hidden until resolution
