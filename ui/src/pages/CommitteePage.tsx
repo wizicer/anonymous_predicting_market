@@ -116,7 +116,7 @@ export function CommitteePage() {
           element={
             <CommitteeKeyGenerationPage
               preparingMarkets={preparingMarkets}
-              address={address}
+              address={address ?? undefined}
               loadingStates={loadingStates}
               onJoinCommittee={handleJoinCommittee}
               onContributeKey={handleContributeKey}
