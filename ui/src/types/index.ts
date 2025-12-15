@@ -39,6 +39,7 @@ export interface Market {
   totalVolume: number;
   totalBets: number;
   committee: CommitteeMember[];
+  minimumCommittee: number;
   requiredCommittee: number;
   requiredReputation: number;
   publicKey?: string;
