@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pedersen DKG Demo – Baby Jubjub (@zk-kit/baby-jubjub)</title>
+<script src="https://cdn.jsdelivr.net/npm/@zk-kit/baby-jubjub"></script>
+<style>
+body { font-family: system-ui, sans-serif; margin: 2em; }
+pre { background: #f6f6f6; padding: 1em; border-radius: 8px; }
+button { margin: 0.3em; }
+</style>
+</head>
+<body>
+<h2>Pedersen DKG Demo (on Baby Jubjub)</h2>
+<p>Simulates 3 participants (t = 2) executing a two-round Pedersen DKG.  
+All group operations use @zk-kit/baby-jubjub.</p>
+<button id="run">Run DKG</button>
+<pre id="out"></pre>
+
+<script>
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
+const out = document.getElementById("out");
+const log = (...a) => out.textContent += a.join(" ") + "\n";
+
+const { Base8, addPoint, mulPointEscalar } = window.babyJubjub;
+
+// field order r (curve subgroup order)
+const r = BigInt("2736030358979909402780800718157159386076813972158567259200215660948447373041");
+
+// utility
+function mod(a, m=r) { return (a % m + m) % m; }
+function randScalar() {
+  // random 252-bit scalar
+  const arr = crypto.getRandomValues(new Uint8Array(32));
+  let x = 0n;
+  for (let i = 0; i < 32; i++) x = (x << 8n) + BigInt(arr[i]);
+  return mod(x);
+}
+
+// evaluate polynomial at x
+function evalPoly(coeffs, x) {
+  let res = 0n, pow = 1n;
+  for (const c of coeffs) { res = mod(res + c * pow); pow = mod(pow * BigInt(x)); }
+  return res;
+}
+
+// multiply point by scalar
+function mul(s) { return mulPointEscalar(Base8, s); }
+
+// verify share
+function verifyShare(share, commitments, index) {
+  // check g^{share} == Π C_k^{index^k}
+  let rhs = [BigInt(0), BigInt(1)]; // neutral
+  let pow = 1n;
+  for (const C of commitments) {
+    const Ci = mulPointEscalar(C, pow);
+    rhs = addPoint(rhs, Ci);
+    pow = mod(pow * BigInt(index));
+  }
+  const lhs = mulPointEscalar(Base8, share);
+  return lhs[0] === rhs[0] && lhs[1] === rhs[1];
+}
+
+document.getElementById("run").onclick = () => {
+  out.textContent = "";
+  const n = 3, t = 2;
+  log(`Participants: ${n}, threshold t=${t}`);
+  
+  // --- Round 1 : each party generates poly and commitments ---
+  const polys = [], commits = [];
+  for (let i=0;i<n;i++) {
+    const coeffs = Array.from({length:t}, ()=>randScalar());
+    polys.push(coeffs);
+    commits.push(coeffs.map(c => mul(c))); // commitments
+    log(`P${i+1} coefficients:`, coeffs.map(x=>x.toString()).join(", "));
+  }
+
+  // --- Round 2 : each party computes shares for others ---
+  const shares = Array.from({length:n}, ()=>Array(n).fill(0n));
+  for (let i=0;i<n;i++) {
+    for (let j=0;j<n;j++) {
+      shares[i][j] = evalPoly(polys[i], j+1);
+    }
+  }
+
+  // --- Compute each participant's final share s_j = Σ_i s_{ij} ---
+  const finalShares = [];
+  for (let j=0;j<n;j++) {
+    let sum = 0n;
+    for (let i=0;i<n;i++) sum = mod(sum + shares[i][j]);
+    finalShares.push(sum);
+    log(`P${j+1} final share s${j+1} = ${sum}`);
+  }
+
+  // --- Verification ---
+  for (let j=0;j<n;j++) {
+    let ok = true;
+    for (let i=0;i<n;i++) {
+      if (!verifyShare(shares[i][j], commits[i], j+1)) { ok=false; break; }
+    }
+    log(`P${j+1} share verified: ${ok}`);
+  }
+
+  // --- Aggregate public key (g^{Σ_i a_{i0}}) ---
+  let pk = [0n,1n];
+  for (let i=0;i<n;i++) pk = addPoint(pk, commits[i][0]);
+  log(`\nPublic key (pk) = g^{Σ a₀ᵢ}:`);
+  log(JSON.stringify(pk));
+
+  // --- Demonstrate secret reconstruction from any t=2 shares ---
+  const modInv = (a, m = r) => {
+    let lm = 1n, hm = 0n;
+    let low = mod(a, m), high = m;
+    while (low > 1n) {
+      const ratio = high / low;
+      [lm, hm] = [hm - lm * ratio, lm];
+      [low, high] = [high - low * ratio, low];
+    }
+    return mod(lm, m);
+  }
+
+  const lambda = (i, S) => {
+    let num = 1n, den = 1n;
+    for (const j of S) if (j !== i) {
+      num = mod(num * BigInt(-j));
+      den = mod(den * BigInt(i - j));
+    }
+    return mod(num * modInv(den, r));
+  };
+
+  const subset = [1,2];
+  let secret = 0n;
+  for (const i of subset) secret = mod(secret + finalShares[i-1] * lambda(i, subset));
+  log(`\nReconstructed secret f(0) from shares 1 & 2: ${secret}`);
+
+  const pk2 = mul(secret);
+  log(`pk₂ = g^{f(0)} matches? ${pk2[0]===pk[0] && pk2[1]===pk[1]}`);
+};
+</script>
+</body>
+</html>
