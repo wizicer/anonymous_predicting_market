@@ -1,0 +1,122 @@
+% \documentclass[11pt,twoside,a4paper]{article}
+% \usepackage{times}
+
+% \usepackage{xeCJK}
+
+% \setmainfont{Times New Roman}
+
+% \setCJKmainfont{Songti SC}
+\documentclass[10pt]{ctexart}
+% \usepackage[UTF-8]{ctex}
+\usepackage{amsmath}
+\usepackage{amsthm} % 根据 amsthm 的手册, amsthm 的加载要在 amsmath 之后
+\usepackage{amssymb}  %为了能使用\mathbb{H} 
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage[colorlinks,linkcolor=blue]{hyperref} % 使用超链接
+\usepackage{pdfpages}
+\usepackage{geometry}
+\geometry{a4paper,scale=0.8}
+\usepackage{graphicx} %插入图片的宏包
+\usepackage{float} %设置图片浮动位置的宏包
+\usepackage{subfigure} %插入多图时用子图显示的宏包
+\usepackage{graphicx}
+\usepackage{enumerate}
+% \usepackage{natbib}
+% \newcommand{\upcite}[1][{\setcitestyle{square,super}}\cite{#1}]
+
+\usepackage{listings}
+
+\lstset{
+ columns=fixed,       
+ numbers=left,                                        % 在左侧显示行号
+ numberstyle=\tiny\color{gray},                       % 设定行号格式
+ frame=none,                                          % 不显示背景边框
+ backgroundcolor=\color[RGB]{245,245,244},            % 设定背景颜色
+ keywordstyle=\color[RGB]{40,40,255},                 % 设定关键字颜色
+ numberstyle=\footnotesize\color{darkgray},           
+ commentstyle=\it\color[RGB]{0,96,96},                % 设置代码注释的格式
+ stringstyle=\rmfamily\slshape\color[RGB]{128,0,0},   % 设置字符串格式
+ showstringspaces=false,                              % 不显示字符串中的空格
+%language=c++,                                        % 设置语言
+}
+
+\newtheorem{definition}{定义}
+\newtheorem{lemma}{引理}
+\newtheorem{theorem}{定理}
+\newtheorem{example}{例}
+
+
+\title{隐私预测市场}
+\author{Jade Xie}
+\date{\today}
+\begin{document}
+\maketitle
+% \tableofcontents
+
+\section{协议描述}
+
+\subsection{阈值加密准备}
+
+阈值加密委员会：
+\begin{itemize}
+    \item $n$ 个成员的私钥：$sk_1, sk_2, \ldots, sk_n$ 
+    \item 公钥：$pk$
+    \item 阈值: $t$
+\end{itemize}
+对于一个用 $pk$ 进行加密的秘文 $C$，当至少有 $n$ 个成员中的 $t$ 个成员的私钥进行解密时，都能解密成功。
+
+\subsection{下注阶段}
+对于一个用户，其地址为 $address_i$ ，当其对某一个预测方向 $side_i$ 下注 $amount_i$ 金额时，链下计算：
+\begin{itemize}
+    \item $ct_i \leftarrow Enc(pk, side_i \| address_i)$: 阈值加密的下注方向的密文，其中 $side_i$ 是下注的方向，$address_i$ 为用户地址。
+    \item $comm_i = Poseidon(side_i \| salt \| amount_i \| address_i)$: 计算承诺，其中 $salt$ 为全局公开的随机盐。
+    \item $(\pi_i, ct_i) \leftarrow Prove(pk, comm_i, amount_i, address_i, salt;side_i)$: ZK Proof 证明下注合法。证明：
+    \begin{enumerate}
+        \item $side_i \in \{0,1\}$
+        \item $amount_i > 0$，以及验证 $amount_i$ 的取值范围合法。
+        \item 计算 $ct_i := Enc(pk, side_i \| address_i)$
+        \item $comm_i == Poseidon(side_i \| salt \| amount_i \| address_i)$
+    \end{enumerate}
+\end{itemize}
+接着，向链上提交 $(address_i, amount_i, ct_i, comm_i, \pi_i)$ 。
+
+链上执行：
+\begin{itemize}
+    \item $1 / 0 \leftarrow Verify(\pi_i, address_i, ammount_i, ct_i, comm_i,pk)$ ：验证 ZK Proof 是否有效。若输出为 $1$，表明证明有效，则链上记录下注数据\[\{address_i, ammount_i, ct_i, comm_i\}\] ; 否则提示用户下注失败。
+\end{itemize}
+
+\subsection{开奖阶段}
+
+在开奖阶段，阈值解密委员会从链上拉取所有的数据，若这一轮中链上总共有 $M$ 个用户的有效数据，则从链上拉取的数据为
+
+\[
+\{(address_i, amount_i, ct_i, comm_i)\}_{i = 1}^{M}
+\]
+在链下，计算
+\begin{itemize}
+    \item 对于 $i = 1, \ldots, M$, 计算 $(side_i, address_i) \leftarrow Dec(ct_i, sk_1, sk_2, \ldots, sk_t)$: 解密委员会中要至少有 $t$ 个成员才能对阈值加密的密文 $ct_1, \ldots, ct_M$ 进行解密。
+    \item $\left(\pi_{batch}, sum_0, sum_1 \right) \leftarrow BatchProve\left(pk, salt, \{(address_i, comm_i, ammount_i)\}_{i = 1}^M;\{side_i\}_{i = 1}^M\right)$:生成批量证明并输出聚合金额，在电路中：
+    \begin{enumerate}
+        \item 证明 $side_i \in \{0, 1\}$ ($i = 1, \ldots, M$)
+        \item 证明 $comm_i == Poseidon(side_i \| salt \| amount_i \| address_i)$ ($i = 1, \ldots, M$)
+        \item 计算输出 $sum_0, sum_1$，\[sum_0 = \sum_{i = 1}^M (1 - side_i) \times amount_i , \quad sum_1 = \sum_{i = 1}^M side_i \times amount_i \]
+    \end{enumerate}
+\end{itemize}
+向链上提交数据 $(\pi_{batch}, sum_0, sum_1)$ ， 链上计算
+\begin{enumerate}
+    \item $1 / 0 \leftarrow BatchVerify(\pi_{batch}, sum_0, sum_1, pk, salt, \{(address_i, amount_i, comm_i)\}_{i = 1}^M)$: 验证批量证明是否有效。若输出为 $1$， 则说明批量证明有效，则继续以下流程，否则直接输出失败。
+    \item 更新奖金累计池，更新 \[total_0 \leftarrow total_0 +  sum_0 \quad total_1 \leftarrow total_1 +  sum_1\] 
+\end{enumerate}
+可以分批次得到批量证明，然后逐步更新奖金累计池，直到所有用户的数据都覆盖且不重复。
+
+当从 Oracle 处获得获胜方向 $winning\_side$ 后， 进行结算和分配奖金阶段：
+\begin{enumerate}
+    \item 计算赔率 $\rho$: \[\rho = \frac{total_0 + total_1}{(1 - winning\_side) \times total_0 + winning\_side \times total_1}\]
+    \item 对于每个用户计算奖金，若 $side_i == winning\_side$，则 \[reward_i = amount_i \times \rho, \] 用户调用合约领取收益; 否则 $reward_i = 0$ 。
+\end{enumerate}
+
+
+\end{document}
