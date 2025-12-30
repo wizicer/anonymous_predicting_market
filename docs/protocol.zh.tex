@@ -71,7 +71,13 @@
 \subsection{下注阶段}
 对于一个用户，其地址为 $address_i$ ，当其对某一个预测方向 $side_i$ 下注 $amount_i$ 金额时，链下计算：
 \begin{itemize}
-    \item $ct_i \leftarrow Enc(pk, side_i \| address_i)$: 阈值加密的下注方向的密文，其中 $side_i$ 是下注的方向，$address_i$ 为用户地址。
+    \item $ct_i \leftarrow Enc(pk, side_i \| address_i)$: 阈值加密的下注方向的密文，其中 $side_i$ 是下注的方向，$address_i$ 为用户地址，为 $160$ 位。
+    \begin{itemize}
+        \item 这里我们采用 ElGamal 加密方案。
+        \item 将消息 $side_i \| address_i$ 映射到椭圆曲线上，\[m \leftarrow g^{side_i \times 2^{160} + address_i \mod q}\]
+        \item 计算 \[\beta \overset{R}{\leftarrow} \mathbb{Z}_q, \quad v \leftarrow g^{\beta}, \quad e \leftarrow m + pk^{\beta}\]
+        \item 输出 \[ct_i = (v, e) \in \mathbb{G} \times \mathbb{G}\]
+    \end{itemize}
     \item $comm_i = Poseidon(side_i \| salt \| amount_i \| address_i)$: 计算承诺，其中 $salt$ 为全局公开的随机盐。
     \item $(\pi_i, ct_i) \leftarrow Prove(pk, comm_i, amount_i, address_i, salt;side_i)$: ZK Proof 证明下注合法。证明：
     \begin{enumerate}
@@ -98,7 +104,7 @@
 在链下，计算
 \begin{itemize}
     \item 对于 $i = 1, \ldots, M$, 计算 $(side_i, address_i) \leftarrow Dec(ct_i, sk_1, sk_2, \ldots, sk_t)$: 解密委员会中要至少有 $t$ 个成员才能对阈值加密的密文 $ct_1, \ldots, ct_M$ 进行解密。
-    \item $\left(\pi_{batch}, sum_0, sum_1 \right) \leftarrow BatchProve\left(pk, salt, \{(address_i, comm_i, ammount_i)\}_{i = 1}^M;\{side_i\}_{i = 1}^M\right)$:生成批量证明并输出聚合金额，在电路中：
+    \item $\left(\pi_{batch}, sum_0, sum_1 \right) \leftarrow BatchProve\left(pk, salt, \{(comm_i, ammount_i)\}_{i = 1}^M;\{side_i,address_i\}_{i = 1}^M\right)$:生成批量证明并输出聚合金额，在电路中：
     \begin{enumerate}
         \item 证明 $side_i \in \{0, 1\}$ ($i = 1, \ldots, M$)
         \item 证明 $comm_i == Poseidon(side_i \| salt \| amount_i \| address_i)$ ($i = 1, \ldots, M$)
