@@ -1,6 +1,6 @@
 pragma circom 2.1.0;
 
-include "circomlib/poseidon.circom";
+include "../../node_modules/circomlib/circuits/poseidon.circom";
 
 /*
 ZK-BatchOpen Circuit Prototype
@@ -36,9 +36,16 @@ template BatchOpen(N) {
     // Public Outputs
     signal output sum0;
     signal output sum1;
-
-    signal sum0_accum <== 0;
-    signal sum1_accum <== 0;
+    
+    // temporary signals
+    signal s[N];
+    signal amount0[N];
+    signal amount1[N];
+    component c[N];
+    signal sum0_accum[N + 1];
+    signal sum1_accum[N + 1];
+    sum0_accum[0] <== 0;
+    sum1_accum[0] <== 0;
 
     // ============================================================
     // Loop over batch
@@ -46,31 +53,26 @@ template BatchOpen(N) {
     for (var i = 0; i < N; i++) {
 
         // 1. side[i] ∈ {0,1}
-        signal s = side[i];
-        0 === s * (s - 1);
+        s[i] <== side[i];
+        0 === s[i] * (s[i] - 1);
 
         // 2. commitment check
         // comm[i] = Poseidon(side, salt, amount, address)
-        component c = Poseidon(4);
-        c.inputs[0] <== s;
-        c.inputs[1] <== salt;
-        c.inputs[2] <== amount[i];
-        c.inputs[3] <== address[i];
-
-        c.out === comm[i];
+        c[i] = Poseidon(4);
+        c[i].inputs[0] <== s[i];
+        c[i].inputs[1] <== salt;
+        c[i].inputs[2] <== amount[i];
+        c[i].inputs[3] <== address[i];
+        c[i].out === comm[i];
 
         // 3. accumulate sum0 and sum1
-        // TODO: write correct code
-        signal amount0;
-        signal amount1;
+        amount0[i] <== (1 - s[i]) * amount[i];
+        amount1[i] <== s[i] * amount[i];
 
-        amount0 <== (1 - s) * amount[i];
-        amount1 <== s * amount[i];
-
-        sum0_accum <== sum0_accum + amount0;
-        sum1_accum <== sum1_accum + amount1;
+        sum0_accum[i + 1] <== sum0_accum[i] + amount0[i];
+        sum1_accum[i + 1] <== sum1_accum[i] + amount1[i];
     }
 
-    sum0 <== sum0_accum;
-    sum1 <== sum1_accum;
+    sum0 <== sum0_accum[N];
+    sum1 <== sum1_accum[N];
 }
