@@ -37,6 +37,7 @@ export async function createMarket(
   description: string,
   salt: bigint,
   expiresAt: bigint,
+  minCommittee: number,
   requiredCommittee: number,
   requiredReputation: number
 ): Promise<void> {
@@ -46,6 +47,7 @@ export async function createMarket(
     description,
     salt,
     expiresAt,
+    minCommittee,
     requiredCommittee,
     requiredReputation
   );
@@ -147,13 +149,14 @@ interface RawMarketData {
   salt: bigint;
   status: bigint;
   expiresAt: bigint;
-  requiredCommittee: number;
-  requiredReputation: number;
-  betCount: number;
+  minCommittee: bigint;  
+  requiredCommittee: bigint;   
+  requiredReputation: bigint;  
+  betCount: bigint;            
   publicKeyX: string;
   publicKeyY: string;
   publicKeyCommitment: string;
-  outcome: number;
+  outcome: bigint;             // enum returned as bigint
   oracleSubmittedAt: bigint;
 }
 
@@ -163,7 +166,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
   const committee = await getCommitteeMembers(marketId);
   
   const status = marketStatusToString(Number(data.status));
-  const outcome = outcomeToString(data.outcome);
+  const outcome = outcomeToString(Number(data.outcome));
   
   return {
     id: marketId.toString(),
@@ -178,11 +181,11 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     yesPercentage: 0, // Calculated after resolution
     noPercentage: 0,
     totalVolume: 0, // Would need to track from events
-    totalBets: data.betCount,
+    totalBets: Number(data.betCount),
     committee,
-    minimumCommittee: data.requiredCommittee,
-    requiredCommittee: data.requiredCommittee,
-    requiredReputation: data.requiredReputation,
+    minimumCommittee: Number(data.minCommittee),
+    requiredCommittee: Number(data.requiredCommittee),
+    requiredReputation: Number(data.requiredReputation),
     publicKey: data.publicKeyX !== '0x0000000000000000000000000000000000000000000000000000000000000000' 
       ? data.publicKeyX + data.publicKeyY.slice(2) 
       : undefined,

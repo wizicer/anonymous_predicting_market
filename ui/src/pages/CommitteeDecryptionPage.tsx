@@ -12,6 +12,7 @@ import { getAllMarkets, submitKeyShare, batchOpenAndResolve, getAllBets, getComm
 import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 import { decryptFromCircom, babyJub } from '@/services/encryption';
 import { useWallet } from '@/contexts/WalletContext';
+import { getEphemeralKey, reconstructSecret } from '@/services/dkg';
 
 type LoadingStates = Record<string, boolean>;
 
@@ -30,20 +31,6 @@ interface DecryptedBetData {
 // Store decrypted data per market
 type DecryptedDataMap = Record<string, DecryptedBetData[]>;
 
-// Mock function to combine key shares into a single private key
-// In production, this would use proper threshold cryptography (e.g., Shamir's Secret Sharing)
-function combineKeyShares(keys: bigint[]): bigint {
-  if (keys.length === 0) {
-    throw new Error('No key shares provided');
-  }
-  // Simple mock: XOR all keys together (NOT cryptographically secure - just for demo)
-  // In production, use proper threshold decryption scheme
-  let combined = keys[0];
-  for (let i = 1; i < keys.length; i++) {
-    combined = combined ^ keys[i];
-  }
-  return combined;
-}
 
 export function CommitteeDecryptionPage() {
   const { address } = useWallet();
@@ -89,8 +76,17 @@ export function CommitteeDecryptionPage() {
   };
 
   // Step 1: Submit key share (prove and disclose)
+  // Uses the ephemeral private key stored during DKG, or generates a random one if not available
   const handleSubmitKeyShare = async (marketId: string) => {
-    const keyShare = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+    // Try to get the ephemeral key from DKG (stored in localStorage)
+    let keyShare = getEphemeralKey(marketId);
+    
+    if (!keyShare) {
+      // Fallback: generate a random key share if DKG wasn't performed
+      console.warn('[CommitteeDecryptionPage] No ephemeral key found for market, using random');
+      keyShare = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+    }
+    
     await submitKeyShare(BigInt(marketId), keyShare);
     toast.success('Key share submitted!');
     await loadMarkets();
@@ -104,6 +100,7 @@ export function CommitteeDecryptionPage() {
   };
 
   // Step 2: Download bets and decrypt them locally
+  // Reconstructs the shared secret from on-chain key shares using Lagrange interpolation
   const handleLocalDecrypt = async (marketId: string) => {
     // Get all bets for this market
     const bets: BetData[] = await getAllBets(BigInt(marketId));
@@ -113,18 +110,30 @@ export function CommitteeDecryptionPage() {
       return;
     }
 
-    // Get all committee key shares
+    // Get all committee key shares from on-chain
     const committeeKeys = await getCommitteeKeys(BigInt(marketId));
-    const submittedKeys = committeeKeys.filter(k => k.key !== 0n).map(k => k.key);
     
-    if (submittedKeys.length === 0) {
+    // Filter to only submitted keys and create shares array with indices (1-based)
+    const shares: Array<{ index: number; share: bigint }> = [];
+    for (let i = 0; i < committeeKeys.length; i++) {
+      if (committeeKeys[i].key !== 0n) {
+        shares.push({
+          index: i + 1, // 1-based index for Lagrange interpolation
+          share: committeeKeys[i].key,
+        });
+      }
+    }
+    
+    if (shares.length === 0) {
       throw new Error('No key shares have been submitted yet');
     }
 
-    // Combine key shares to get the private key
-    const combinedPrivateKey = combineKeyShares(submittedKeys);
+    // Reconstruct the shared secret using Lagrange interpolation
+    // This computes f(0) from the submitted shares
+    const reconstructedSecret = reconstructSecret(shares);
+    console.log('[CommitteeDecryptionPage] Reconstructed secret from', shares.length, 'shares');
 
-    // Decrypt each bet
+    // Decrypt each bet using the reconstructed secret
     const decryptedBets: DecryptedBetData[] = [];
     
     for (let i = 0; i < bets.length; i++) {
@@ -141,8 +150,8 @@ export function CommitteeDecryptionPage() {
         const mockEphemeralKey = babyJub.BASE.multiply(cypherTextBigInt % 1000n);
         const mockEncryptedMessage = babyJub.BASE.multiply((cypherTextBigInt >> 10n) % 1000n);
         
-        // Decrypt using the combined private key
-        const decryptedPoint = decryptFromCircom(mockEncryptedMessage, mockEphemeralKey, combinedPrivateKey);
+        // Decrypt using the reconstructed secret
+        const decryptedPoint = decryptFromCircom(mockEncryptedMessage, mockEphemeralKey, reconstructedSecret);
         
         // Determine the side from the decrypted point
         // In production, this would match against known encoded side points
@@ -310,10 +319,15 @@ export function CommitteeDecryptionPage() {
                     </div>
                     <div className="h-2 rounded-full bg-muted overflow-hidden">
                       <div
-                        className="bg-blue-500 h-full transition-all"
-                        style={{ width: `${(decryptedCount / market.committee.length) * 100}%` }}
+                        className={`h-full transition-all ${hasSufficientKeyShares(market) ? 'bg-green-500' : 'bg-blue-500'}`}
+                        style={{ width: `${(decryptedCount / market.minimumCommittee) * 100}%` }}
                       />
                     </div>
+                    {hasSufficientKeyShares(market) && (
+                      <p className="text-xs text-green-400">
+                        ✓ Minimum keys submitted - Local Decrypt is now available
+                      </p>
+                    )}
                   </div>
 
                   {/* Three-step workflow */}

@@ -52,6 +52,7 @@ contract AnonymousPredictionMarket {
         MarketStatus status;
         uint256 expiresAt;
 
+        uint8 minCommittee;
         uint8 requiredCommittee;
         uint8 requiredReputation;
 
@@ -85,6 +86,7 @@ contract AnonymousPredictionMarket {
         string calldata description,
         uint256 salt,
         uint256 expiresAt,
+        uint8 minCommittee,
         uint8 requiredCommittee,
         uint8 requiredReputation
     ) external {
@@ -95,6 +97,7 @@ contract AnonymousPredictionMarket {
         m.description = description;
         m.salt = salt;
         m.expiresAt = expiresAt;
+        m.minCommittee = minCommittee;
         m.requiredCommittee = requiredCommittee;
         m.requiredReputation = requiredReputation;
         m.status = MarketStatus.Preparing;

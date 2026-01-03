@@ -33,7 +33,7 @@ export function CreateMarketPage() {
     beginTime: ``,
     expirationDate: `${yyyy}-${mm}-${dd}`,
     expirationTime: `${hh}:${min}`,
-    minCommittee: 3,
+    minCommittee: 2,
     maxCommittee: 3,
     requiredReputation: 100,
   });
@@ -70,6 +70,7 @@ export function CreateMarketPage() {
         salt,
         expiresAt,
         formData.minCommittee,
+        formData.maxCommittee,
         formData.requiredReputation
       );
 

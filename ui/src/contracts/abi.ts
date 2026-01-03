@@ -6,7 +6,7 @@ export const PREDICTION_MARKET_ABI = [
   "function ORACLE_DELAY() view returns (uint256)",
   
   // Market functions
-  "function createMarket(string calldata question, string calldata description, uint256 salt, uint256 expiresAt, uint8 requiredCommittee, uint8 requiredReputation) external",
+  "function createMarket(string calldata question, string calldata description, uint256 salt, uint256 expiresAt, uint8 minCommittee, uint8 requiredCommittee, uint8 requiredReputation) external",
   "function activateMarket(uint256 marketId, bytes32 pkX, bytes32 pkY, bytes32 pkCommitment) external",
   
   // Committee functions
@@ -24,7 +24,7 @@ export const PREDICTION_MARKET_ABI = [
   
   // View functions
   "function marketCount() external view returns (uint256)",
-  "function markets(uint256) external view returns (string question, string description, uint256 salt, uint8 status, uint256 expiresAt, uint8 requiredCommittee, uint8 requiredReputation, uint32 betCount, bytes32 publicKeyX, bytes32 publicKeyY, bytes32 publicKeyCommitment, uint8 outcome, uint256 oracleSubmittedAt)",
+  "function markets(uint256) external view returns (string question, string description, uint256 salt, uint8 status, uint256 expiresAt, uint8 minCommittee, uint8 requiredCommittee, uint8 requiredReputation, uint32 betCount, bytes32 publicKeyX, bytes32 publicKeyY, bytes32 publicKeyCommitment, uint8 outcome, uint256 oracleSubmittedAt)",
   "function getCommittee(uint256 marketId) external view returns (address[])",
   "function getCommitteeCommitment(uint256 marketId, address member) external view returns (uint256)",
   "function getCommitteeKey(uint256 marketId, address member) external view returns (uint256)",
