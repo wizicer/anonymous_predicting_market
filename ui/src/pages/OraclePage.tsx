@@ -41,9 +41,9 @@ export function OraclePage() {
     }
   };
 
-  // Markets that are expired (using effective status) need oracle submission
+  // Markets that are active and past expiration time need oracle submission
   const awaitingMarkets = markets.filter(
-    m => getEffectiveStatus(m) === 'expired'
+    m => m.status === 'active' && new Date(m.expiresAt) <= new Date()
   );
 
   const handleSubmit = async () => {
@@ -146,7 +146,7 @@ export function OraclePage() {
                           <p className="text-sm font-medium line-clamp-2">
                             {market.question}
                           </p>
-                          <StatusBadge status={market.status} />
+                          <StatusBadge status={getEffectiveStatus(market)} />
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
                           Expired: {formatDate(market.expiresAt)}
@@ -241,15 +241,13 @@ export function OraclePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {markets.filter(m => getEffectiveStatus(m) === 'resolved').length === 0 ? (
+              {markets.filter(m => m.status === 'resolved' || m.status === 'expired').length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   No resolved markets yet
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {markets.filter(m => getEffectiveStatus(m) === 'resolved').map(market => {
-                    const effectiveStatus = getEffectiveStatus(market);
-                    return (
+                  {markets.filter(m => m.status === 'resolved' || m.status === 'expired').map(market => (
                     <div
                       key={market.id}
                       className="p-4 rounded-lg border border-border/50 bg-card/50 space-y-2"
@@ -261,7 +259,7 @@ export function OraclePage() {
                         >
                           {market.question}
                         </Link>
-                        <StatusBadge status={effectiveStatus} />
+                        <StatusBadge status={getEffectiveStatus(market)} />
                       </div>
                       <p className="text-xs text-muted-foreground">
                         Expired: {formatDate(market.expiresAt)}
@@ -273,8 +271,7 @@ export function OraclePage() {
                         </div>
                       )}
                     </div>
-                  );
-                  })}
+                  ))}
                 </div>
               )}
             </CardContent>
