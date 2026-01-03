@@ -31,7 +31,8 @@ contract AnonymousPredictionMarket {
     enum Outcome { Undecided, Yes, No }
 
     struct CommitteeInfo {
-        bytes32 keyShare;
+        uint256 commitment;   // != 0 means joined
+        uint256 key;          // key share, 0 until submitted
     }
 
     struct EncryptedBet {
@@ -114,37 +115,35 @@ contract AnonymousPredictionMarket {
         m.publicKeyY = pkY;
         m.publicKeyCommitment = pkCommitment;
         m.status = MarketStatus.Active;
-    }
 
-    function expireMarket(uint256 marketId) external {
-        Market storage m = markets[marketId];
-        require(m.status == MarketStatus.Active, "bad status");
-        require(block.timestamp >= m.expiresAt, "not expired");
-
-        m.status = MarketStatus.Expired;
+        // TODO: Strengthen security by requiring a zk proof for validation
     }
 
     /* ==================== Committee ==================== */
 
-    function joinCommittee(uint256 marketId) external {
+    function joinCommittee(uint256 marketId, uint256 commitment) external {
+        require(commitment != 0, "invalid commitment");
+
         Market storage m = markets[marketId];
         require(m.status == MarketStatus.Preparing, "bad status");
 
         CommitteeInfo storage info = m.committeeInfo[msg.sender];
-        require(!info.joined, "already joined");
+        require(info.commitment == 0, "already joined");
 
-        info.joined = true;
+        info.commitment = commitment;
         m.committee.push(msg.sender);
     }
 
-    function submitKeyShare(uint256 marketId) external {
+    function submitKeyShare(uint256 marketId, uint256 key) external {
+        require(key != 0, "invalid key");
+
         Market storage m = markets[marketId];
         CommitteeInfo storage info = m.committeeInfo[msg.sender];
 
-        require(info.joined, "not committee");
-        require(!info.keyShareSubmitted, "already submitted");
+        require(info.commitment != 0, "not committee");
+        require(info.key == 0, "key already submitted");
 
-        info.keyShareSubmitted = true;
+        info.key = key;
     }
 
     /* ==================== Betting ==================== */
@@ -184,9 +183,12 @@ contract AnonymousPredictionMarket {
 
     function submitOutcome(uint256 marketId, Outcome outcome) external {
         Market storage m = markets[marketId];
-        require(m.status == MarketStatus.Expired, "bad status");
+
+        require(m.status == MarketStatus.Active, "bad status");
+        require(block.timestamp >= m.expiresAt, "market not expired");
         require(outcome != Outcome.Undecided, "invalid outcome");
 
+        m.status = MarketStatus.Expired;
         m.outcome = outcome;
         m.oracleSubmittedAt = block.timestamp;
     }
@@ -218,5 +220,19 @@ contract AnonymousPredictionMarket {
 
     function getCommittee(uint256 marketId) external view returns (address[] memory) {
         return markets[marketId].committee;
+    }
+
+    function getCommitteeCommitment(
+        uint256 marketId,
+        address member
+    ) external view returns (uint256) {
+        return markets[marketId].committeeInfo[member].commitment;
+    }
+
+    function getCommitteeKey(
+        uint256 marketId,
+        address member
+    ) external view returns (uint256) {
+        return markets[marketId].committeeInfo[member].key;
     }
 }
