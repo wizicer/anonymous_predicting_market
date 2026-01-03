@@ -133,6 +133,12 @@ export class DkgCoordinator {
    * Start the DKG process
    */
   async start(): Promise<void> {
+    // Don't restart if already running or complete
+    if (this.status !== 'idle' && this.status !== 'error') {
+      console.log('[DkgCoordinator] DKG already in progress for market:', this.marketId);
+      return;
+    }
+    
     try {
       this.setStatus('waiting_for_peers');
       
