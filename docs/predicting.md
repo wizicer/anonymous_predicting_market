@@ -204,22 +204,22 @@ TODO:
 [ ] circuits (include ts witness generation):
   [ ] zk-bet
   [ ] zk-batch-open
-[ ] contracts:
+[x] contracts:
   [x] prediction.sol
 [ ] ui:
-  [ ] home
-  [ ] create
-  [ ] DKG
+  [x] home
+  [x] create
+  [x] DKG
   [ ] decryption (proof)
-  [ ] oracle
+  [x] oracle
   [ ] detail
   [ ] bet (proof)
 [ ] ui functions:
-  [ ] metamask
-  [ ] snarkjs
-[ ] mock:
-  [ ] Oracle
-  [ ] DKG
+  [x] metamask
+  [x] snarkjs
+[x] mock:
+  [x] Oracle
+  [x] DKG
 
 [ ] submission
   [ ] deploy (demo url and contract address)
