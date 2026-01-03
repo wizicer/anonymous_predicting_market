@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 src/typechain
-src/contracts
+src/contracts/deployment.json
