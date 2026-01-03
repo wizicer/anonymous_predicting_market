@@ -1,14 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-
-interface WalletContextType {
-  address: string | null;
-  isConnected: boolean;
-  isConnecting: boolean;
-  connect: () => Promise<void>;
-  disconnect: () => void;
-}
-
-const WalletContext = createContext<WalletContextType | undefined>(undefined);
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { WalletContext } from './WalletContextType';
 
 const WALLET_STORAGE_KEY = 'apm_wallet_address';
 
@@ -86,12 +77,4 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       {children}
     </WalletContext.Provider>
   );
-}
-
-export function useWallet() {
-  const context = useContext(WalletContext);
-  if (context === undefined) {
-    throw new Error('useWallet must be used within a WalletProvider');
-  }
-  return context;
 }

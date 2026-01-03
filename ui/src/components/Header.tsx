@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import { truncateAddress } from '@/lib/utils';
 import { Wallet, LogOut, History, Shield, Eye, PlusCircle, Home } from 'lucide-react';
 import { useState } from 'react';

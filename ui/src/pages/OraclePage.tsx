@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { StatusBadge } from '@/components/StatusBadge';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import type { Market } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';

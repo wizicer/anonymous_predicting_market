@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';

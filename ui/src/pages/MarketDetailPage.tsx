@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { StatusBadge } from '@/components/StatusBadge';
 import { EncryptedIndicator } from '@/components/EncryptedIndicator';
 import { ZkProofBadge } from '@/components/ZkProofBadge';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import { formatDate, formatAmount, truncateAddress, truncateHash, formatRelativeTime, formatDateTime } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { 

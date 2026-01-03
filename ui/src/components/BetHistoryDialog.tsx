@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { mockUserBets } from '@/lib/mock-data';
 import { formatAmount, formatDate } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import { TrendingUp, TrendingDown, Clock } from 'lucide-react';
 
 interface BetHistoryDialogProps {

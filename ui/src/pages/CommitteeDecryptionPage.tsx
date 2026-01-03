@@ -11,7 +11,7 @@ import { CheckCircle, Download, Loader2, Lock, Shield, Upload } from 'lucide-rea
 import { getAllMarkets, submitKeyShare, batchOpenAndResolve, getAllBets, getCommitteeKeys, type BetData } from '@/services/contractService';
 import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 import { decryptFromCircom, babyJub } from '@/services/encryption';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import { getEphemeralKey, reconstructSecret } from '@/services/dkg';
 
 type LoadingStates = Record<string, boolean>;

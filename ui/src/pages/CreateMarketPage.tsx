@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { useWallet } from '@/contexts/WalletContext';
+import { useWallet } from '@/contexts/useWallet';
 import { MARKET_CATEGORIES } from '@/types';
 import { toast } from 'sonner';
 import { PlusCircle, Info, Users, Clock, Shield, Loader2 } from 'lucide-react';
