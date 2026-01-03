@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,12 +38,9 @@ export function CommitteeDecryptionPage() {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [decryptedData, setDecryptedData] = useState<DecryptedDataMap>({});
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    loadMarkets();
-  }, []);
-
-  const loadMarkets = async () => {
+  const loadMarkets = useCallback(async () => {
     try {
       const allMarkets = await getAllMarkets();
       setMarkets(allMarkets);
@@ -53,7 +50,22 @@ export function CommitteeDecryptionPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadMarkets();
+    
+    // Poll for market updates every 5 seconds
+    pollIntervalRef.current = setInterval(() => {
+      loadMarkets();
+    }, 5000);
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, [loadMarkets]);
 
   // Markets that are expired OR active but past expiration time
   const decryptingMarkets: Market[] = markets.filter(
