@@ -17,7 +17,7 @@ public outputs:
     sum0, sum1
 
 statement:
-1. forall i: comm[i] = Poseidon(side[i], salt, amount[i], address[i])
+1. forall i: comm[i] = Poseidon(encodedSidePoint[i][0] || encodedSidePoint[i][1] || side || salt || amount[i] || address[i])
 2. side[i] ∈ {0,1}
 3. sum0 = Σ( (1 - side[i]) * amount[i] )
    sum1 = Σ( side[i] * amount[i] )
@@ -32,6 +32,7 @@ template BatchOpen(N) {
     // Private Inputs
     signal input side[N];
     signal input address[N];
+    signal input encodedSidePoint[N][2];
 
     // Public Outputs
     signal output sum0;
@@ -57,12 +58,15 @@ template BatchOpen(N) {
         0 === s[i] * (s[i] - 1);
 
         // 2. commitment check
-        // comm[i] = Poseidon(side, salt, amount, address)
-        c[i] = Poseidon(4);
-        c[i].inputs[0] <== s[i];
-        c[i].inputs[1] <== salt;
-        c[i].inputs[2] <== amount[i];
-        c[i].inputs[3] <== address[i];
+        // comm[i] = Poseidon(encodedSidePoint[i][0] || encodedSidePoint[i][1]
+        //                    || side[i] || salt || amount[i] || address[i])
+        c[i] = Poseidon(6);
+        c[i].inputs[0] <== encodedSidePoint[i][0];
+        c[i].inputs[1] <== encodedSidePoint[i][1];
+        c[i].inputs[2] <== side[i];
+        c[i].inputs[3] <== salt;
+        c[i].inputs[4] <== amount[i];
+        c[i].inputs[5] <== address[i];
         c[i].out === comm[i];
 
         // 3. accumulate sum0 and sum1

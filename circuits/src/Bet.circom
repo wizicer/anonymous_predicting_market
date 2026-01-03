@@ -15,17 +15,18 @@ template Bet() {
     // --------------------------
     // Public Inputs
     // --------------------------
-    signal input PK[2];     // public key
-    signal input comm;      // on-chain commitment
-    signal input amount;    // bet amount
-    signal input address;   // user address, for example 160 bits
-    signal input salt;      // global salt
-
+    signal input PK[2];             // public key
+    signal input comm;              // on-chain commitment
+    signal input amount;            // bet amount
+    signal input address;           // user address, for example 160 bits
+    signal input salt;              // global salt
+    
     // --------------------------
     // Private Inputs
     // --------------------------
     signal input side;         // 0 or 1, hidden from chain
     signal input nonceKey;     // nonce for encryption
+    signal input encodedSidePoint[2]; // encoded side point
 
     // --------------------------
     // Public Outputs
@@ -43,34 +44,30 @@ template Bet() {
     //    ct := Enc(PK, side || address)
     //    Using ElGamal Encryption Gadget
     // ============================================================
-    // Verify address is 160 bits
-    component addrBits = Num2Bits(160);
-    addrBits.in <== address;
-
-    // Encode side || address: side (1 bit) || address (160 bits) = 161 bits
-    // side * (1 << 160) + address encodes side in the MSB and address in the lower 160 bits
-    signal message[2];
-    component encode = Encode161();
-    encode.plaintext <== side * (1 << 160) + address;
-    message[0] <== encode.out[0];
-    message[1] <== encode.out[1];
 
     component encrypt = Encrypt();
-    encrypt.message <== message;
+    encrypt.message <== encodedSidePoint;
     encrypt.nonceKey <== nonceKey;
     encrypt.publicKey <== PK;
     encryptedMessage <== encrypt.encryptedMessage;
     ephemeralKey <== encrypt.ephemeralKey;
+    log("encryptedMessage:", encryptedMessage[0], encryptedMessage[1]);
+    log("ephemeralKey:", ephemeralKey[0], ephemeralKey[1]);
 
     // ============================================================
     // 3. Commitment check:
-    //    comm == Poseidon(side || salt || amount || address)
+    //    comm == Poseidon(encodedSidePoint[0] || encodedSidePoint[1]
+    //                     || side || salt || amount || address)
     // ============================================================
-    component commHash = Poseidon(4);
-    commHash.inputs[0] <== side;
-    commHash.inputs[1] <== salt;
-    commHash.inputs[2] <== amount;
-    commHash.inputs[3] <== address;
+    component commHash = Poseidon(6);
+    commHash.inputs[0] <== encodedSidePoint[0];
+    commHash.inputs[1] <== encodedSidePoint[1];
+    commHash.inputs[2] <== side;
+    commHash.inputs[3] <== salt;
+    commHash.inputs[4] <== amount;
+    commHash.inputs[5] <== address;
+    log("commHash.out:", commHash.out);
+    log("comm:", comm);
     commHash.out === comm;
 
     // ============================================================
