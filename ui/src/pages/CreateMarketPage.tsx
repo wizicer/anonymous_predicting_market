@@ -41,8 +41,8 @@ export function CreateMarketPage() {
     try {
       // Parse expiration date to unix timestamp
       const expirationDateTime = formData.expirationTime 
-        ? `${formData.expirationDate}T${formData.expirationTime}`
-        : `${formData.expirationDate}T23:59:59`;
+        ? `${formData.expirationDate}T${formData.expirationTime}Z`
+        : `${formData.expirationDate}T23:59:59Z`;
       const expiresAt = BigInt(Math.floor(new Date(expirationDateTime).getTime() / 1000));
       
       // Generate a random salt
