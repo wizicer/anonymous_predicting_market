@@ -53,7 +53,7 @@ export function Header() {
             <div className="flex items-center gap-2">
               {isConnected ? (
                 <>
-                  <Button
+                  {/* <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowBetHistory(true)}
@@ -61,7 +61,7 @@ export function Header() {
                   >
                     <History className="h-4 w-4" />
                     <span className="hidden sm:inline">History</span>
-                  </Button>
+                  </Button> */}
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary">
                     <Wallet className="h-4 w-4 text-green-400" />
                     <span className="font-mono text-sm">
