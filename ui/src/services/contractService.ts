@@ -90,7 +90,7 @@ export async function submitKeyShare(
 export async function placeEncryptedBet(
   marketId: bigint,
   commitment: string,
-  cypherText: string,
+  cypherText: [string, string],
   a: [bigint, bigint],
   b: [[bigint, bigint], [bigint, bigint]],
   c: [bigint, bigint],
@@ -101,7 +101,8 @@ export async function placeEncryptedBet(
   const tx = await contract.placeEncryptedBet(
     marketId,
     commitment,
-    cypherText,
+    cypherText[0],
+    cypherText[1],
     a,
     b,
     c,

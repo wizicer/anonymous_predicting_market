@@ -42,8 +42,8 @@ export async function getBetProof(
   const eep = JSON.parse("[" + ep + "]");
 
   return {
-    encryptedMessage: eep[3][0],
-    ephemeralKey: eep[3][1],
+    encryptedMessage: [eep[3][0], eep[3][1]],
+    ephemeralKey: [eep[3][2], eep[3][3]],
     a: eep[0],
     b: eep[1],
     c: eep[2],

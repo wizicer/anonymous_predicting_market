@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import type { Market } from '@/types';
 import { getMarket, placeEncryptedBet } from '@/services/contractService';
 import { getBetProof } from '@/services/provers/betProver';
-import { genRandomEncodeSidePoint, poseidonHashBet } from '@/services/encryption';
+import { genCircomInputsForBet } from '@/services/encryption';
 
 export function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -87,14 +87,22 @@ export function MarketDetailPage() {
       // Generate proof using betProver
       const side = selectedPosition === 'yes' ? 1n : 0n;
       const amountWei = BigInt(Math.floor(parseFloat(betAmount) * 1e18));
+      console.log('amountWei:', amountWei);
       const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-      const nonceKey = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-      const addressBigInt = BigInt(address);
-      const encodedSidePoint = genRandomEncodeSidePoint(Number(side));
+      // Convert Ethereum address (hex string) to bigint
+      // Address format: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
+      const addressBigInt = BigInt(address.startsWith('0x') ? address : `0x${address}`);
+      // Convert address to decimal string for poseidonHashBet
+      const addressDecimalString = addressBigInt.toString();
       
-      // Mock public key for now (would come from market.publicKey)
-      const PK: [bigint, bigint] = [1n, 2n];
-      const comm = await poseidonHashBet(encodedSidePoint, Number(side), salt.toString(), Number(amountWei), address);
+      // generate circom inputs for bet
+      const inputs = await genCircomInputsForBet(Number(side), salt.toString(), Number(amountWei), addressDecimalString);
+      const encodedSidePoint: [bigint, bigint] = [BigInt(inputs.encoded_side_point_x), BigInt(inputs.encoded_side_point_y)];
+      const nonceKey = inputs.nonce;
+      const comm = inputs.comm;
+
+      // generate proof
+      const PK: [bigint, bigint] = [12491931337615216906644451308100368990772328332823118861435481277128519010406n, 4085398734649953375506534926466287042440660224509217955443595497259710547300n];
       
       const proof = await getBetProof(
         PK,
@@ -104,12 +112,21 @@ export function MarketDetailPage() {
         salt,
         side,
         nonceKey,
-        [encodedSidePoint.x, encodedSidePoint.y]
+        encodedSidePoint
       );
       
       // Convert commitment and cypherText to bytes32
+      // Both are uint256 values that need to be converted to bytes32 (32 bytes = 64 hex chars)
       const commitment = '0x' + comm.toString(16).padStart(64, '0');
-      const cypherText = '0x' + proof.encryptedMessage[0].toString(16).padStart(64, '0');
+      // cypherText should be the first element of encryptedMessage as bytes32
+      // Note: uint256 fits in bytes32, so we just pad to 64 hex characters
+      const cypherText: [string, string] = ['0x' + proof.encryptedMessage[0].toString(16).padStart(64, '0'), '0x' + proof.encryptedMessage[1].toString(16).padStart(64, '0')];
+      
+      // Debug: Verify bytes32 conversion
+      console.log('Commitment (bytes32):', commitment);
+      console.log('CypherText (bytes32):', cypherText);
+      console.log('encryptedMessage[0] (uint256):', proof.encryptedMessage[0].toString());
+      console.log('encryptedMessage[1] (uint256):', proof.encryptedMessage[1].toString());
       
       // Prepare public signals (6 elements)
       const publicSignals: bigint[] = [
@@ -117,8 +134,12 @@ export function MarketDetailPage() {
         proof.encryptedMessage[1],
         proof.ephemeralKey[0],
         proof.ephemeralKey[1],
+        PK[0],
+        PK[1],
         comm,
-        0n
+        amountWei,
+        addressBigInt,
+        salt,
       ];
       
       await placeEncryptedBet(
