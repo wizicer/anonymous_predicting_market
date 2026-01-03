@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import type { Market } from '@/types';
 import { getMarket, placeEncryptedBet } from '@/services/contractService';
 import { getBetProof } from '@/services/provers/betProver';
+import { genRandomEncodeSidePoint, poseidonHashBet } from '@/services/encryption';
 
 export function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -89,10 +90,11 @@ export function MarketDetailPage() {
       const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
       const nonceKey = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
       const addressBigInt = BigInt(address);
+      const encodedSidePoint = genRandomEncodeSidePoint(Number(side));
       
       // Mock public key for now (would come from market.publicKey)
       const PK: [bigint, bigint] = [1n, 2n];
-      const comm = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+      const comm = poseidonHashBet(encodedSidePoint, Number(side), salt.toString(), Number(amountWei), address);
       
       const proof = await getBetProof(
         PK,
@@ -101,7 +103,8 @@ export function MarketDetailPage() {
         addressBigInt,
         salt,
         side,
-        nonceKey
+        nonceKey,
+        [encodedSidePoint.x, encodedSidePoint.y]
       );
       
       // Convert commitment and cypherText to bytes32

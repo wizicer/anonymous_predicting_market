@@ -65,7 +65,8 @@ export function CommitteeDecryptionPage() {
           [], // amount
           0n, // salt
           [], // side
-          []  // address
+          [],  // address
+          [], // encodedSidePoint
         );
         
         // Pad publicSignals to 23 elements (3 + MAX_BETS * 2 where MAX_BETS = 10)
