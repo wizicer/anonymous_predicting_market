@@ -5,14 +5,16 @@ import { EncryptedIndicator } from '@/components/EncryptedIndicator';
 import { formatDate, formatAmount, formatRelativeTime } from '@/lib/utils';
 import type { Market } from '@/types';
 import { Lock, Users, Clock, TrendingUp } from 'lucide-react';
+import { getEffectiveStatus } from '@/lib/marketStatus';
 
 interface MarketCardProps {
   market: Market;
 }
 
 export function MarketCard({ market }: MarketCardProps) {
-  const isResolved = market.status === 'resolved';
-  const isPreparing = market.status === 'preparing';
+  const effectiveStatus = getEffectiveStatus(market);
+  const isResolved = effectiveStatus === 'resolved';
+  const isPreparing = effectiveStatus === 'preparing';
   
   return (
     <Link to={`/market/${market.id}`}>

@@ -235,4 +235,23 @@ contract AnonymousPredictionMarket {
     ) external view returns (uint256) {
         return markets[marketId].committeeInfo[member].key;
     }
+
+    function getBet(
+        uint256 marketId,
+        uint32 betId
+    ) external view returns (
+        address bettor,
+        bytes32 commitment,
+        bytes32 cypherText,
+        uint256 amount,
+        uint256 timestamp,
+        bool verified
+    ) {
+        EncryptedBet storage bet = markets[marketId].betInfo[betId];
+        return (bet.bettor, bet.commitment, bet.cypherText, bet.amount, bet.timestamp, bet.verified);
+    }
+
+    function getBetCount(uint256 marketId) external view returns (uint32) {
+        return markets[marketId].betCount;
+    }
 }

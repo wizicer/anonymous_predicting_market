@@ -226,4 +226,50 @@ export function isDeployed(): boolean {
   return deployment.predictionMarket !== '';
 }
 
+// ==================== Bet Data Functions ====================
+
+export interface BetData {
+  bettor: string;
+  commitment: string;
+  cypherText: string;
+  amount: bigint;
+  timestamp: bigint;
+  verified: boolean;
+}
+
+export async function getBetCount(marketId: bigint): Promise<number> {
+  const contract = getContract();
+  return Number(await contract.getBetCount(marketId));
+}
+
+export async function getBet(marketId: bigint, betId: number): Promise<BetData> {
+  const contract = getContract();
+  const [bettor, commitment, cypherText, amount, timestamp, verified] = await contract.getBet(marketId, betId);
+  return { bettor, commitment, cypherText, amount, timestamp, verified };
+}
+
+export async function getAllBets(marketId: bigint): Promise<BetData[]> {
+  const count = await getBetCount(marketId);
+  const bets: BetData[] = [];
+  for (let i = 0; i < count; i++) {
+    const bet = await getBet(marketId, i);
+    bets.push(bet);
+  }
+  return bets;
+}
+
+export async function getCommitteeKeys(marketId: bigint): Promise<{ address: string; key: bigint }[]> {
+  const contract = getContract();
+  const addresses: string[] = await contract.getCommittee(marketId);
+  
+  const keys = await Promise.all(
+    addresses.map(async (address) => {
+      const key = await contract.getCommitteeKey(marketId, address);
+      return { address, key };
+    })
+  );
+  
+  return keys;
+}
+
 export { MarketStatus, Outcome };

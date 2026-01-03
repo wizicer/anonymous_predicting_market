@@ -3,6 +3,7 @@ import { Shield, Lock, Eye, Zap, Loader2 } from 'lucide-react';
 import type { Market, MarketStatus } from '@/types';
 import { useState, useEffect } from 'react';
 import { getAllMarkets, isDeployed } from '@/services/contractService';
+import { getEffectiveStatus } from '@/lib/marketStatus';
 
 const features = [
   {
@@ -57,7 +58,7 @@ export function HomePage() {
   };
 
   const marketsByStatus = statusOrder.reduce((acc, status) => {
-    acc[status] = markets.filter(m => m.status === status);
+    acc[status] = markets.filter(m => getEffectiveStatus(m) === status);
     return acc;
   }, {} as Record<MarketStatus, Market[]>);
 
