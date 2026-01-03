@@ -7,7 +7,7 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { EncryptedIndicator } from '@/components/EncryptedIndicator';
 import { ZkProofBadge } from '@/components/ZkProofBadge';
 import { useWallet } from '@/contexts/WalletContext';
-import { formatDate, formatAmount, truncateAddress, truncateHash, formatRelativeTime } from '@/lib/utils';
+import { formatDate, formatAmount, truncateAddress, truncateHash, formatRelativeTime, formatDateTime } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Clock, TrendingUp, Users, Lock, 
@@ -400,7 +400,7 @@ export function MarketDetailPage() {
                 <span className="text-muted-foreground flex items-center gap-2">
                   <Clock className="h-4 w-4" /> Expires
                 </span>
-                <span className="font-mono text-sm">{formatDate(market.expiresAt)}</span>
+                <span className="font-mono text-sm">{formatDateTime(market.expiresAt)}</span>
               </div>
               {market.resolvedAt && (
                 <div className="flex items-center justify-between">
