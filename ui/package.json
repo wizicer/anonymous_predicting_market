@@ -17,6 +17,7 @@
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/vite": "^4.1.17",
+    "assert": "^2.1.0",
     "buffer": "^6.0.3",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",

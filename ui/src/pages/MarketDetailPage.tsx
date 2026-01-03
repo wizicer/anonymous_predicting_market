@@ -94,7 +94,7 @@ export function MarketDetailPage() {
       
       // Mock public key for now (would come from market.publicKey)
       const PK: [bigint, bigint] = [1n, 2n];
-      const comm = poseidonHashBet(encodedSidePoint, Number(side), salt.toString(), Number(amountWei), address);
+      const comm = await poseidonHashBet(encodedSidePoint, Number(side), salt.toString(), Number(amountWei), address);
       
       const proof = await getBetProof(
         PK,

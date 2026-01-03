@@ -1,3 +1,6 @@
+// @ts-expect-error - snarkjs doesn't have type definitions
+import * as snarkjs from "snarkjs";
+
 export interface BatchOpenProof {
   sum0: bigint;
   sum1: bigint;
@@ -27,7 +30,7 @@ export async function getBatchOpenProof(
   if (address.length !== Number(N))
     throw new Error("Invalid address length, required N elements");
 
-  const { proof, publicSignals } = await window.snarkjs.groth16.fullProve(
+  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     {
       comm,
       amount,
@@ -37,11 +40,11 @@ export async function getBatchOpenProof(
       encodedSidePoint,
     },
 
-    "circuits/BatchOpen.wasm",
-    "circuits/BatchOpen_final.zkey"
+    "/test/circuits_generator/BatchOpen.wasm",
+    "/test/circuits_generator/BatchOpen_final.zkey"
   );
 
-  const ep = await window.snarkjs.groth16.exportSolidityCallData(
+  const ep = await snarkjs.groth16.exportSolidityCallData(
     proof,
     publicSignals
   );

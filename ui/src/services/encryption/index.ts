@@ -2,8 +2,6 @@
 import type { AffinePoint } from "@noble/curves/abstract/curve";
 import { babyJub as CURVE } from "./utils/babyjub-noble";
 import { prv2pub, bigInt2Buffer, formatPrivKeyForBabyJub } from "./utils/tools";
-import * as assert from "assert";
-import * as crypto from "crypto";
 import type { ExtPointType } from "@noble/curves/abstract/edwards";
 import { poseidonHashBet } from "./hash";
 
@@ -38,6 +36,32 @@ const babyJub = CURVE.ExtendedPoint;
  * @return A BabyJub-compatible random value.
  * @see {@link https://github.com/privacy-scaling-explorations/maci/blob/master/crypto/ts/index.ts}
  */
+/**
+ * Generate random bytes using Web Crypto API (browser-compatible)
+ */
+function getRandomBytes(length: number): Uint8Array {
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+        const array = new Uint8Array(length);
+        window.crypto.getRandomValues(array);
+        return array;
+    }
+    // Fallback for Node.js environment
+    if (typeof require !== 'undefined') {
+        const crypto = require('crypto');
+        return crypto.randomBytes(length);
+    }
+    throw new Error('No random number generator available');
+}
+
+/**
+ * Convert Uint8Array to hex string
+ */
+function uint8ArrayToHex(array: Uint8Array): string {
+    return Array.from(array)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
 function genRandomBabyJubValue(): bigint {
     // Prevent modulo bias
     //const lim = BigInt('0x10000000000000000000000000000000000000000000000000000000000000000')
@@ -48,7 +72,8 @@ function genRandomBabyJubValue(): bigint {
 
     let rand;
     while (true) {
-        rand = BigInt("0x" + crypto.randomBytes(32).toString("hex"));
+        const randomBytes = getRandomBytes(32);
+        rand = BigInt("0x" + uint8ArrayToHex(randomBytes));
 
         if (rand >= min) {
             break;
@@ -56,7 +81,9 @@ function genRandomBabyJubValue(): bigint {
     }
 
     const privKey: PrivKey = rand % SNARK_FIELD_SIZE;
-    assert(privKey < SNARK_FIELD_SIZE);
+    if (privKey >= SNARK_FIELD_SIZE) {
+        throw new Error("Invalid private key generated");
+    }
 
     return privKey;
 }
@@ -82,7 +109,9 @@ const genRandomSalt = (): PrivKey => {
 function genPubKey(privKey: PrivKey): PubKey {
     // Check whether privKey is a field element
     privKey = BigInt(privKey.toString());
-    assert(privKey < SNARK_FIELD_SIZE);
+    if (privKey >= SNARK_FIELD_SIZE) {
+        throw new Error("Invalid private key: exceeds field size");
+    }
     return prv2pub(bigInt2Buffer(privKey));
 }
 
@@ -258,7 +287,7 @@ function rerandomize(
 /**
  * @return A BabyJub-compatible salt.
  */
-function genCircomInputsForBet(side: number, salt: string, amount: number, address: string): { encoded_side_point_x: string, encoded_side_point_y: string, nonce: bigint, comm: bigint } {
+async function genCircomInputsForBet(side: number, salt: string, amount: number, address: string): Promise<{ encoded_side_point_x: string, encoded_side_point_y: string, nonce: bigint, comm: bigint }> {
     // 检查 side 是否为 0 或 1
     if (side !== 0 && side !== 1) {
         throw new Error("side 只能是 0 或 1");
@@ -269,7 +298,7 @@ function genCircomInputsForBet(side: number, salt: string, amount: number, addre
     let encoded_side_point_x = encoded_side_point.x.toString();
     let encoded_side_point_y = encoded_side_point.y.toString();
     const nonce = formatPrivKeyForBabyJub(genRandomSalt());
-    const comm = poseidonHashBet(encoded_side_point_ext, side, salt, amount, address);
+    const comm = await poseidonHashBet(encoded_side_point_ext, side, salt, amount, address);
     return { encoded_side_point_x, encoded_side_point_y, nonce, comm};
 };
 

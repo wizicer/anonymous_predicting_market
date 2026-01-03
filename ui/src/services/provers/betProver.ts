@@ -1,3 +1,6 @@
+// @ts-expect-error - snarkjs doesn't have type definitions
+import * as snarkjs from "snarkjs";
+
 export interface BetProof {
   encryptedMessage: [bigint, bigint];
   ephemeralKey: [bigint, bigint];
@@ -16,7 +19,7 @@ export async function getBetProof(
   nonceKey: bigint,
   encodedSidePoint: [bigint, bigint]
 ): Promise<BetProof> {
-  const { proof, publicSignals } = await window.snarkjs.groth16.fullProve(
+  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     {
       PK,
       comm,
@@ -28,11 +31,11 @@ export async function getBetProof(
       encodedSidePoint,
     },
 
-    "circuits/Bet.wasm",
-    "circuits/Bet_final.zkey"
+    "/test/circuits_generator/Bet.wasm",
+    "/test/circuits_generator/Bet_final.zkey"
   );
 
-  const ep = await window.snarkjs.groth16.exportSolidityCallData(
+  const ep = await snarkjs.groth16.exportSolidityCallData(
     proof,
     publicSignals
   );

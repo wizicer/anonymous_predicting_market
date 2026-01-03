@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { Header } from '@/components/Header';
+import { initPoseidon } from '@/services/encryption';
 import { 
   HomePage, 
   MarketDetailPage, 
@@ -11,6 +13,13 @@ import {
 } from '@/pages';
 
 function App() {
+  // Initialize Poseidon on app startup
+  useEffect(() => {
+    initPoseidon().catch((error) => {
+      console.error('Failed to initialize Poseidon:', error);
+    });
+  }, []);
+
   return (
     <WalletProvider>
       <BrowserRouter>

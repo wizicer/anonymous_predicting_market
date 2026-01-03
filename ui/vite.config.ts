@@ -17,6 +17,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       buffer: "buffer",
+      assert: path.resolve(__dirname, "./src/assert-stub.ts"),
     },
   },
   define: {
@@ -24,7 +25,7 @@ export default defineConfig({
     "process.env": {},
   },
   optimizeDeps: {
-    include: ["buffer"],
+    include: ["buffer", "assert"],
     esbuildOptions: {
       define: {
         global: "globalThis",

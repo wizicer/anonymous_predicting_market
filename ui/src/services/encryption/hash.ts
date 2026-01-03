@@ -35,6 +35,22 @@ function getPoseidon(): any {
 }
 
 /**
+ * 确保 Poseidon 已初始化（异步）
+ * 如果正在初始化，等待完成；如果未初始化，开始初始化
+ */
+async function ensurePoseidonInitialized(): Promise<void> {
+    if (poseidonInstance) {
+        return; // Already initialized
+    }
+    if (poseidonInitPromise) {
+        await poseidonInitPromise; // Wait for ongoing initialization
+        return;
+    }
+    // Start initialization
+    await initPoseidon();
+}
+
+/**
  * 计算 Poseidon(encodedSidePoint[0] || encodedSidePoint[1] || side || salt || amount || address)
  * 与 Circom 电路中的实现保持一致：
  *   component commHash = Poseidon(6);
@@ -52,13 +68,15 @@ function getPoseidon(): any {
  * @param address 用户地址，160 bits (20 bytes)，十进制字符串格式
  * @returns Poseidon 哈希结果，返回 bigint（十进制格式）
  */
-export function poseidonHashBet(
+export async function poseidonHashBet(
     encodedSidePoint: BabyJubExtPoint,
     side: number,
     salt: string,
     amount: number,
     address: string,
-): bigint {
+): Promise<bigint> {
+    // 确保 Poseidon 已初始化
+    await ensurePoseidonInitialized();
     // 获取 Poseidon 实例（同步）
     const poseidon = getPoseidon();
     
