@@ -13,6 +13,7 @@ import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 import { decryptFromCircom, babyJub } from '@/services/encryption';
 import { useWallet } from '@/contexts/useWallet';
 import { getEphemeralKey, reconstructSecret } from '@/services/dkg';
+import { getEffectiveStatus } from '@/lib/marketStatus';
 
 type LoadingStates = Record<string, boolean>;
 
@@ -67,9 +68,9 @@ export function CommitteeDecryptionPage() {
     };
   }, [loadMarkets]);
 
-  // Markets that are expired OR active but past expiration time
+  // Markets that are expired (using effective status which treats active+expired as expired)
   const decryptingMarkets: Market[] = markets.filter(
-    m => m.status === 'expired' || (m.status === 'active' && new Date(m.expiresAt) <= new Date())
+    m => getEffectiveStatus(m) === 'expired'
   );
 
   const setLoading = (key: string, value: boolean) => {
@@ -305,6 +306,7 @@ export function CommitteeDecryptionPage() {
         <div className="space-y-4">
           {decryptingMarkets.map(market => {
             const decryptedCount = market.committee.filter(m => m.decryptionSubmitted).length;
+            const effectiveStatus = getEffectiveStatus(market);
 
             return (
               <Card key={market.id}>
@@ -319,7 +321,7 @@ export function CommitteeDecryptionPage() {
                         {market.totalBets} bets to decrypt
                       </CardDescription>
                     </div>
-                    <StatusBadge status={market.status} />
+                    <StatusBadge status={effectiveStatus} />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">

@@ -8,6 +8,7 @@ import { EncryptedIndicator } from '@/components/EncryptedIndicator';
 import { ZkProofBadge } from '@/components/ZkProofBadge';
 import { useWallet } from '@/contexts/useWallet';
 import { formatDate, formatAmount, truncateAddress, truncateHash, formatRelativeTime, formatDateTime } from '@/lib/utils';
+import { getEffectiveStatus } from '@/lib/marketStatus';
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Clock, TrendingUp, Users, Lock, 
@@ -69,9 +70,10 @@ export function MarketDetailPage() {
     );
   }
 
-  const isResolved = market.status === 'resolved';
-  const isPreparing = market.status === 'preparing';
-  const isActive = market.status === 'active';
+  const effectiveStatus = getEffectiveStatus(market);
+  const isResolved = effectiveStatus === 'resolved';
+  const isPreparing = effectiveStatus === 'preparing';
+  const isActive = effectiveStatus === 'active';
   const committeeProgress = (market.committee.length / Number(market.requiredCommittee)) * 100;
 
   const handlePlaceBet = async (mode: 'verified' | 'unverified') => {
@@ -180,7 +182,7 @@ export function MarketDetailPage() {
       {/* Header */}
       <div className="space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
-          <StatusBadge status={market.status} />
+          <StatusBadge status={effectiveStatus} />
           <span className="text-sm text-muted-foreground font-mono">
             {market.category.toUpperCase()}
           </span>

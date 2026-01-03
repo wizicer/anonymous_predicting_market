@@ -17,6 +17,7 @@ import {
   type DkgStatus,
 } from '@/services/dkgCoordinator';
 import { randScalar, mul, type Point } from '@/services/dkg';
+import { getEffectiveStatus } from '@/lib/marketStatus';
 
 type LoadingStates = Record<string, boolean>;
 
@@ -72,7 +73,7 @@ export function CommitteeKeyGenerationPage() {
     };
   }, [loadMarkets]);
 
-  const preparingMarkets: Market[] = markets.filter(m => m.status === 'preparing');
+  const preparingMarkets: Market[] = markets.filter(m => getEffectiveStatus(m) === 'preparing');
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -293,6 +294,7 @@ export function CommitteeKeyGenerationPage() {
             const dkgStatus = getDkgStatusDisplay(market.id);
             const dkgState = dkgStates[market.id];
 
+            const effectiveStatus = getEffectiveStatus(market);
             return (
               <Card key={market.id}>
                 <CardHeader>
@@ -306,7 +308,7 @@ export function CommitteeKeyGenerationPage() {
                         Min Reputation: {market.requiredReputation}
                       </CardDescription>
                     </div>
-                    <StatusBadge status={market.status} />
+                    <StatusBadge status={effectiveStatus} />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">

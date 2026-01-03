@@ -14,6 +14,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { getAllMarkets, submitOutcome, Outcome } from '@/services/contractService';
+import { getEffectiveStatus } from '@/lib/marketStatus';
 
 export function OraclePage() {
   const { isConnected, connect } = useWallet();
@@ -40,9 +41,9 @@ export function OraclePage() {
     }
   };
 
-  // Markets that are active and past expiration time need oracle submission
+  // Markets that are expired (using effective status) need oracle submission
   const awaitingMarkets = markets.filter(
-    m => m.status === 'active' && new Date(m.expiresAt) <= new Date()
+    m => getEffectiveStatus(m) === 'expired'
   );
 
   const handleSubmit = async () => {
@@ -240,13 +241,15 @@ export function OraclePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {markets.filter(m => m.status === 'resolved' || m.status === 'expired').length === 0 ? (
+              {markets.filter(m => getEffectiveStatus(m) === 'resolved').length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
                   No resolved markets yet
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {markets.filter(m => m.status === 'resolved' || m.status === 'expired').map(market => (
+                  {markets.filter(m => getEffectiveStatus(m) === 'resolved').map(market => {
+                    const effectiveStatus = getEffectiveStatus(market);
+                    return (
                     <div
                       key={market.id}
                       className="p-4 rounded-lg border border-border/50 bg-card/50 space-y-2"
@@ -258,7 +261,7 @@ export function OraclePage() {
                         >
                           {market.question}
                         </Link>
-                        <StatusBadge status={market.status} />
+                        <StatusBadge status={effectiveStatus} />
                       </div>
                       <p className="text-xs text-muted-foreground">
                         Expired: {formatDate(market.expiresAt)}
@@ -270,7 +273,8 @@ export function OraclePage() {
                         </div>
                       )}
                     </div>
-                  ))}
+                  );
+                  })}
                 </div>
               )}
             </CardContent>

@@ -21,7 +21,7 @@ export function MarketCard({ market }: MarketCardProps) {
       <Card className="h-full transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 bg-card/50 backdrop-blur">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
-            <StatusBadge status={market.status} />
+            <StatusBadge status={effectiveStatus} />
             <span className="text-xs text-muted-foreground font-mono">
               {market.category.toUpperCase()}
             </span>
@@ -87,7 +87,7 @@ export function MarketCard({ market }: MarketCardProps) {
             <div className="flex items-center gap-2 text-sm text-muted-foreground col-span-2">
               <Clock className="h-4 w-4" />
               <span>
-                {market.status === 'resolved' 
+                {effectiveStatus === 'resolved' 
                   ? `Resolved ${formatDate(market.resolvedAt!)}`
                   : formatRelativeTime(market.expiresAt)
                 }
