@@ -71,7 +71,7 @@ export function MarketDetailPage() {
   const isResolved = market.status === 'resolved';
   const isPreparing = market.status === 'preparing';
   const isActive = market.status === 'active';
-  const committeeProgress = (market.committee.length / market.requiredCommittee) * 100;
+  const committeeProgress = (market.committee.length / Number(market.requiredCommittee)) * 100;
 
   const handlePlaceBet = async (mode: 'verified' | 'unverified') => {
     if (!selectedPosition || !betAmount || !address) return;
@@ -440,9 +440,9 @@ export function MarketDetailPage() {
                     </div>
                   </div>
                 ))}
-                {market.committee.length < market.requiredCommittee && (
+                {market.committee.length < Number(market.requiredCommittee) && (
                   <p className="text-xs text-muted-foreground text-center pt-2">
-                    {market.requiredCommittee - market.committee.length} more members needed
+                    {Number(market.requiredCommittee) - market.committee.length} more members needed
                   </p>
                 )}
               </div>

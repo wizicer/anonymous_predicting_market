@@ -127,11 +127,11 @@ export function CommitteeKeyGenerationPage() {
       ) : (
         <div className="space-y-4">
           {preparingMarkets.map(market => {
-            const progress = (market.committee.length / market.requiredCommittee) * 100;
+            const progress = (market.committee.length / (Number(market.requiredCommittee))) * 100;
             const isJoined = market.committee.some(
               m => m.address.toLowerCase() === address?.toLowerCase()
             );
-            const isFull = market.committee.length >= market.requiredCommittee;
+            const isFull = market.committee.length >= Number(market.requiredCommittee);
 
             return (
               <Card key={market.id}>

@@ -61,11 +61,11 @@ export function MarketCard({ market }: MarketCardProps) {
               <div className="h-2 rounded-full bg-muted overflow-hidden">
                 <div 
                   className="bg-amber-500 transition-all h-full" 
-                  style={{ width: `${(market.committee.length / market.requiredCommittee) * 100}%` }} 
+                  style={{ width: `${(market.committee.length / Number(market.requiredCommittee)) * 100}%` }} 
                 />
               </div>
               <p className="text-xs text-muted-foreground text-center">
-                {market.committee.length} / {market.requiredCommittee} members
+                {market.committee.length} / {Number(market.requiredCommittee)} members
               </p>
             </div>
           ) : (
