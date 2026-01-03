@@ -13,7 +13,8 @@ export async function getBetProof(
   address: bigint,
   salt: bigint,
   side: bigint,
-  nonceKey: bigint
+  nonceKey: bigint,
+  encodedSidePoint: [bigint, bigint]
 ): Promise<BetProof> {
   const { proof, publicSignals } = await window.snarkjs.groth16.fullProve(
     {
@@ -24,6 +25,7 @@ export async function getBetProof(
       salt,
       side,
       nonceKey,
+      encodedSidePoint,
     },
 
     "circuits/Bet.wasm",

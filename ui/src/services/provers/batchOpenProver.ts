@@ -12,7 +12,8 @@ export async function getBatchOpenProof(
   amount: bigint[],
   salt: bigint,
   side: bigint[],
-  address: bigint[]
+  address: bigint[],
+  encodedSidePoint: [bigint, bigint][]
 ): Promise<BatchOpenProof> {
   if (comm.length !== Number(N))
     throw new Error("Invalid comm length, required N elements");
@@ -33,6 +34,7 @@ export async function getBatchOpenProof(
       salt,
       side,
       address,
+      encodedSidePoint,
     },
 
     "circuits/BatchOpen.wasm",
