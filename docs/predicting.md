@@ -194,6 +194,38 @@ TODO:
 TODO:
 
 
+
+---
+
+<!-- _header: Others -->
+<!-- _class: small -->
+## TODO
+
+[ ] circuits (include ts witness generation):
+  [ ] zk-bet
+  [ ] zk-batch-open
+[ ] contracts:
+  [ ] prediction.sol
+[ ] ui:
+  [ ] home
+  [ ] create
+  [ ] DKG
+  [ ] decryption (proof)
+  [ ] oracle
+  [ ] detail
+  [ ] bet (proof)
+[ ] ui functions:
+  [ ] metamask
+  [ ] snarkjs
+[ ] mock:
+  [ ] Oracle
+  [ ] DKG
+
+[ ] submission
+  [ ] deploy (demo url and contract address)
+  [ ] demo video
+  [ ] detail information (intro, description, progress, etc.)
+
 ---
 
 <!-- _class: lead -->
