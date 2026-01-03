@@ -1,5 +1,5 @@
-// @ts-expect-error - circomlib doesn't have type definitions
-import { buildPoseidonOpt } from "circomlib";
+// @ts-expect-error - circomlibjs doesn't have type definitions
+import { buildPoseidonOpt } from "circomlibjs";
 import type { BabyJubExtPoint } from "../encryption/index";
 
 // 缓存 poseidon 实例，避免重复构建

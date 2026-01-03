@@ -1,6 +1,10 @@
 // Taken from https://github.com/Shigoto-dev19/ec-elgamal-circom
-const createBlakeHash = require("blake-hash");
-const ff = require("ffjavascript");
+// Import polyfills first to ensure Buffer is available
+import "../../../polyfills";
+// @ts-expect-error - blake-hash doesn't have type definitions
+import createBlakeHash from "blake-hash";
+// @ts-expect-error - ffjavascript doesn't have type definitions
+import * as ff from "ffjavascript";
 
 const stringifyBigInts: (obj: object) => any = ff.utils.stringifyBigInts;
 const unstringifyBigInts: (obj: object) => any = ff.utils.unstringifyBigInts;
