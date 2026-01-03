@@ -15,14 +15,24 @@ export function CreateMarketPage() {
   const navigate = useNavigate();
   const { isConnected, connect } = useWallet();
   
+  // set expiration date/time to 20 minutes from now
+  const now = new Date();
+  const expiration = new Date(now.getTime() + 20 * 60 * 1000);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  const yyyy = expiration.getFullYear();
+  const mm = pad(expiration.getMonth() + 1);
+  const dd = pad(expiration.getDate());
+  const hh = pad(expiration.getHours());
+  const min = pad(expiration.getMinutes());
+
   const [formData, setFormData] = useState({
     question: 'Will Bitcoin reach $150,000 by end of 2025?',
     description: '',
     category: 'crypto',
-    beginDate: '2025-12-25',
-    beginTime: '',
-    expirationDate: '2026-01-15',
-    expirationTime: '',
+    beginDate: `2026-01-01`,
+    beginTime: ``,
+    expirationDate: `${yyyy}-${mm}-${dd}`,
+    expirationTime: `${hh}:${min}`,
     minCommittee: 3,
     maxCommittee: 3,
     requiredReputation: 100,
@@ -40,10 +50,16 @@ export function CreateMarketPage() {
     setIsSubmitting(true);
     try {
       // Parse expiration date to unix timestamp
-      const expirationDateTime = formData.expirationTime 
-        ? `${formData.expirationDate}T${formData.expirationTime}Z`
-        : `${formData.expirationDate}T23:59:59Z`;
-      const expiresAt = BigInt(Math.floor(new Date(expirationDateTime).getTime() / 1000));
+      const [year, month, day] = formData.expirationDate.split("-").map(Number);
+
+      let hour = 23, minute = 59, second = 59;
+      if (formData.expirationTime) {
+        [hour, minute] = formData.expirationTime.split(":").map(Number);
+        second = 0;
+      }
+
+      const localDate = new Date(year, month - 1, day, hour, minute, second);
+      const expiresAt = BigInt(Math.floor(localDate.getTime() / 1000));
       
       // Generate a random salt
       const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
