@@ -1,23 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useWallet } from '@/contexts/WalletContext';
-import { mockMarkets } from '@/lib/mock-data';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CheckCircle, FileKey, Loader2, Users } from 'lucide-react';
+import { getAllMarkets, joinCommittee, activateMarket } from '@/services/contractService';
 
 type LoadingStates = Record<string, boolean>;
 
 export function CommitteeKeyGenerationPage() {
   const { address } = useWallet();
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
+  const [markets, setMarkets] = useState<Market[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const preparingMarkets: Market[] = mockMarkets.filter(m => m.status === 'preparing');
+  useEffect(() => {
+    loadMarkets();
+  }, []);
+
+  const loadMarkets = async () => {
+    try {
+      const allMarkets = await getAllMarkets();
+      setMarkets(allMarkets);
+    } catch (error) {
+      console.error('Failed to load markets:', error);
+      toast.error('Failed to load markets');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const preparingMarkets: Market[] = markets.filter(m => m.status === 'preparing');
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -30,49 +48,56 @@ export function CommitteeKeyGenerationPage() {
     }
 
     setLoading(`join-${marketId}`, true);
-    await new Promise(r => setTimeout(r, 1000));
-
-    const market = mockMarkets.find(m => m.id === marketId);
-    if (!market) {
-      toast.error('Market not found');
+    try {
+      // Generate a random commitment for the key share
+      const commitment = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+      
+      await joinCommittee(BigInt(marketId), commitment);
+      
+      toast.success('Joined committee successfully!');
+      await loadMarkets(); // Refresh markets
+    } catch (error) {
+      console.error('Failed to join committee:', error);
+      toast.error('Failed to join committee', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
       setLoading(`join-${marketId}`, false);
-      return;
     }
-
-    if (market.committee.length >= market.requiredCommittee) {
-      toast.error('Committee is already full');
-      setLoading(`join-${marketId}`, false);
-      return;
-    }
-
-    const isAlreadyJoined = market.committee.some(
-      m => m.address.toLowerCase() === address.toLowerCase()
-    );
-    if (isAlreadyJoined) {
-      toast.info('You are already in the committee');
-      setLoading(`join-${marketId}`, false);
-      return;
-    }
-
-    market.committee.push({
-      address,
-      reputation: 200,
-      keyShareSubmitted: true,
-      decryptionSubmitted: false,
-    });
-
-    toast.success('Joined committee successfully!');
-    setLoading(`join-${marketId}`, false);
   };
 
   const handleProvePublicKey = async (marketId: string) => {
     setLoading(`prove-${marketId}`, true);
-    await new Promise(r => setTimeout(r, 1500));
-    toast.success('Public key proof submitted!', {
-      description: 'Mock verification successful.',
-    });
-    setLoading(`prove-${marketId}`, false);
+    try {
+      // For simplicity, generate mock public key values
+      // In production, this would be computed from committee key shares
+      const pkX = '0x' + '1'.padStart(64, '0');
+      const pkY = '0x' + '2'.padStart(64, '0');
+      const pkCommitment = '0x' + '3'.padStart(64, '0');
+      
+      await activateMarket(BigInt(marketId), pkX, pkY, pkCommitment);
+      
+      toast.success('Market activated!', {
+        description: 'Public key has been set and market is now active.',
+      });
+      await loadMarkets(); // Refresh markets
+    } catch (error) {
+      console.error('Failed to activate market:', error);
+      toast.error('Failed to activate market', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setLoading(`prove-${marketId}`, false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

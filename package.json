@@ -12,17 +12,25 @@
     "test": "hardhat test",
     "dev:circuit": "nodemon --watch circuits --ext circom --exec circom -l ./node_modules",
     "compile": "hardhat compile",
-    "chain": "hardhat node"
+    "chain:node": "hardhat node",
+    "chain": "concurrently \"npm run chain:node\" \"npm run chain:deploy\"",
+    "chain:deploy": "hardhat run scripts/deploy.ts --network localhost"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@typechain/ethers-v6": "^0.5.0",
+    "@typechain/hardhat": "^9.0.0",
     "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7",
+    "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.6.1",
     "ethers": "^6.0.0",
     "hardhat": "^2.19.0",
     "nodemon": "^3.1.10",
-    "snarkjs": "^0.7.5"
+    "snarkjs": "^0.7.5",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.0",
+    "typescript": "^5.3.0"
   }
 }

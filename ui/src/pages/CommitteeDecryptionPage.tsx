@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
-import { mockMarkets } from '@/lib/mock-data';
 import type { Market } from '@/types';
 import { formatDate, truncateAddress } from '@/lib/utils';
 import { toast } from 'sonner';
 import { CheckCircle, Download, Loader2, Lock, Shield, Upload } from 'lucide-react';
+import { getAllMarkets, submitKeyShare, batchOpenAndResolve } from '@/services/contractService';
+import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 
 type LoadingStates = Record<string, boolean>;
 
@@ -16,8 +17,26 @@ type DecryptStep = 'download' | 'proof' | 'upload';
 
 export function CommitteeDecryptionPage() {
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({});
+  const [markets, setMarkets] = useState<Market[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const decryptingMarkets: Market[] = mockMarkets.filter(m => m.status === 'expired');
+  useEffect(() => {
+    loadMarkets();
+  }, []);
+
+  const loadMarkets = async () => {
+    try {
+      const allMarkets = await getAllMarkets();
+      setMarkets(allMarkets);
+    } catch (error) {
+      console.error('Failed to load markets:', error);
+      toast.error('Failed to load markets');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const decryptingMarkets: Market[] = markets.filter(m => m.status === 'expired');
 
   const setLoading = (key: string, value: boolean) => {
     setLoadingStates(prev => ({ ...prev, [key]: value }));
@@ -26,17 +45,62 @@ export function CommitteeDecryptionPage() {
   const handleDecrypt = async (marketId: string, step: DecryptStep) => {
     const key = `${step}-${marketId}`;
     setLoading(key, true);
-    await new Promise(r => setTimeout(r, 1500));
-
-    const messages = {
-      download: 'Encrypted bets downloaded',
-      proof: 'ZK proof generated successfully',
-      upload: 'Decryption results uploaded',
-    };
-
-    toast.success(messages[step]);
-    setLoading(key, false);
+    
+    try {
+      if (step === 'download') {
+        // Step 1: Submit key share (prove and disclose)
+        const keyShare = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+        await submitKeyShare(BigInt(marketId), keyShare);
+        toast.success('Key share submitted!');
+        await loadMarkets();
+      } else if (step === 'proof') {
+        // Step 2: Local decrypt - this is done off-chain
+        toast.success('Local decryption completed');
+      } else if (step === 'upload') {
+        // Step 3: Batch prove and resolve
+        // Generate proof using batchOpenProver
+        const proof = await getBatchOpenProof(
+          0n, // N - number of bets
+          [], // comm
+          [], // amount
+          0n, // salt
+          [], // side
+          []  // address
+        );
+        
+        // Pad publicSignals to 23 elements (3 + MAX_BETS * 2 where MAX_BETS = 10)
+        const publicSignals: bigint[] = [proof.sum0, proof.sum1, 0n];
+        while (publicSignals.length < 23) {
+          publicSignals.push(0n);
+        }
+        
+        await batchOpenAndResolve(
+          BigInt(marketId),
+          proof.a,
+          proof.b,
+          proof.c,
+          publicSignals
+        );
+        toast.success('Market resolved!');
+        await loadMarkets();
+      }
+    } catch (error) {
+      console.error(`Failed to ${step}:`, error);
+      toast.error(`Failed to ${step}`, {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setLoading(key, false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -1,19 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useWallet } from '@/contexts/WalletContext';
-import { mockMarkets, mockOracleSubmissions } from '@/lib/mock-data';
-import { formatDate, formatDateTime, truncateAddress } from '@/lib/utils';
+import type { Market } from '@/types';
+import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 import { 
   Eye, AlertTriangle, CheckCircle, XCircle, 
-  Clock, ExternalLink, Loader2, History 
+  Loader2
 } from 'lucide-react';
+import { getAllMarkets, submitOutcome, Outcome } from '@/services/contractService';
 
 export function OraclePage() {
   const { isConnected, connect } = useWallet();
@@ -21,9 +21,28 @@ export function OraclePage() {
   const [outcome, setOutcome] = useState<'yes' | 'no' | null>(null);
   const [proofUrl, setProofUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [markets, setMarkets] = useState<Market[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const awaitingMarkets = mockMarkets.filter(
-    m => m.status === 'expired'
+  useEffect(() => {
+    loadMarkets();
+  }, []);
+
+  const loadMarkets = async () => {
+    try {
+      const allMarkets = await getAllMarkets();
+      setMarkets(allMarkets);
+    } catch (error) {
+      console.error('Failed to load markets:', error);
+      toast.error('Failed to load markets');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Markets that are active and past expiration time need oracle submission
+  const awaitingMarkets = markets.filter(
+    m => m.status === 'active' && new Date(m.expiresAt) <= new Date()
   );
 
   const handleSubmit = async () => {
@@ -33,17 +52,35 @@ export function OraclePage() {
     }
 
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 1500));
-    
-    toast.success('Ground truth submitted!', {
-      description: 'Resolution will take effect after 24-hour delay period.',
-    });
-    
-    setSelectedMarket(null);
-    setOutcome(null);
-    setProofUrl('');
-    setIsSubmitting(false);
+    try {
+      const outcomeValue = outcome === 'yes' ? Outcome.Yes : Outcome.No;
+      await submitOutcome(BigInt(selectedMarket), outcomeValue);
+      
+      toast.success('Ground truth submitted!', {
+        description: 'Resolution will take effect after 24-hour delay period.',
+      });
+      
+      setSelectedMarket(null);
+      setOutcome(null);
+      setProofUrl('');
+      await loadMarkets();
+    } catch (error) {
+      console.error('Failed to submit outcome:', error);
+      toast.error('Failed to submit outcome', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (
@@ -190,76 +227,48 @@ export function OraclePage() {
           </Card>
         </div>
 
-        {/* Submission History */}
+        {/* Resolved Markets */}
         <div>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
-                Resolution History
+                <CheckCircle className="h-5 w-5" />
+                Resolved Markets
               </CardTitle>
               <CardDescription>
-                Past oracle submissions and their status
+                Markets that have been resolved
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {mockOracleSubmissions.length === 0 ? (
+              {markets.filter(m => m.status === 'resolved' || m.status === 'expired').length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">
-                  No resolutions submitted yet
+                  No resolved markets yet
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {mockOracleSubmissions.map(submission => (
+                  {markets.filter(m => m.status === 'resolved' || m.status === 'expired').map(market => (
                     <div
-                      key={submission.id}
+                      key={market.id}
                       className="p-4 rounded-lg border border-border/50 bg-card/50 space-y-2"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <Link 
-                          to={`/market/${submission.marketId}`}
+                          to={`/market/${market.id}`}
                           className="text-sm font-medium hover:underline line-clamp-2"
                         >
-                          {submission.marketQuestion}
+                          {market.question}
                         </Link>
-                        <Badge 
-                          variant="outline"
-                          className={
-                            submission.outcome === 'yes'
-                              ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                              : 'bg-red-500/20 text-red-400 border-red-500/30'
-                          }
-                        >
-                          {submission.outcome.toUpperCase()}
-                        </Badge>
+                        <StatusBadge status={market.status} />
                       </div>
-                      
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Submitted: {formatDateTime(submission.submittedAt)}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          By: <span className="font-mono">{truncateAddress(submission.submitter)}</span>
-                        </span>
-                        {submission.proofUrl && (
-                          <a
-                            href={submission.proofUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-blue-400 hover:underline"
-                          >
-                            Proof <ExternalLink className="h-3 w-3" />
-                          </a>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-1 text-xs text-green-400">
-                        <CheckCircle className="h-3 w-3" />
-                        Effective: {formatDateTime(submission.effectiveAt)}
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Expired: {formatDate(market.expiresAt)}
+                      </p>
+                      {market.outcome && (
+                        <div className="flex items-center gap-1 text-xs text-green-400">
+                          <CheckCircle className="h-3 w-3" />
+                          Outcome: {market.outcome.toUpperCase()}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

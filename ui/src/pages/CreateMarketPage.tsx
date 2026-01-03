@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { useWallet } from '@/contexts/WalletContext';
 import { MARKET_CATEGORIES } from '@/types';
 import { toast } from 'sonner';
-import { PlusCircle, Info, Users, Clock, Shield } from 'lucide-react';
+import { PlusCircle, Info, Users, Clock, Shield, Loader2 } from 'lucide-react';
+import { createMarket } from '@/services/contractService';
 
 export function CreateMarketPage() {
   const navigate = useNavigate();
@@ -23,11 +24,12 @@ export function CreateMarketPage() {
     expirationDate: '2026-01-15',
     expirationTime: '',
     minCommittee: 3,
-    maxCommittee: 5,
+    maxCommittee: 3,
     requiredReputation: 100,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.question || !formData.expirationDate) {
@@ -35,11 +37,39 @@ export function CreateMarketPage() {
       return;
     }
 
-    toast.success('Market created successfully!', {
-      description: 'Your market is now in "Preparing" status awaiting committee formation.',
-    });
-    
-    navigate('/');
+    setIsSubmitting(true);
+    try {
+      // Parse expiration date to unix timestamp
+      const expirationDateTime = formData.expirationTime 
+        ? `${formData.expirationDate}T${formData.expirationTime}`
+        : `${formData.expirationDate}T23:59:59`;
+      const expiresAt = BigInt(Math.floor(new Date(expirationDateTime).getTime() / 1000));
+      
+      // Generate a random salt
+      const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+
+      await createMarket(
+        formData.question,
+        formData.description,
+        salt,
+        expiresAt,
+        formData.minCommittee,
+        formData.requiredReputation
+      );
+
+      toast.success('Market created successfully!', {
+        description: 'Your market is now in "Preparing" status awaiting committee formation.',
+      });
+      
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to create market:', error);
+      toast.error('Failed to create market', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const updateField = (field: string, value: string | number) => {
@@ -241,9 +271,13 @@ export function CreateMarketPage() {
           </CardContent>
         </Card>
 
-        <Button type="submit" size="lg" className="w-full">
-          <PlusCircle className="h-5 w-5 mr-2" />
-          Create Market
+        <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+          ) : (
+            <PlusCircle className="h-5 w-5 mr-2" />
+          )}
+          {isSubmitting ? 'Creating...' : 'Create Market'}
         </Button>
       </form>
     </div>

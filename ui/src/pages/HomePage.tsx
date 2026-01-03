@@ -1,7 +1,8 @@
 import { MarketCard } from '@/components/MarketCard';
-import { mockMarkets } from '@/lib/mock-data';
-import { Shield, Lock, Eye, Zap } from 'lucide-react';
-import type { MarketStatus } from '@/types';
+import { Shield, Lock, Eye, Zap, Loader2 } from 'lucide-react';
+import type { Market, MarketStatus } from '@/types';
+import { useState, useEffect } from 'react';
+import { getAllMarkets, isDeployed } from '@/services/contractService';
 
 const features = [
   {
@@ -29,10 +30,52 @@ const features = [
 const statusOrder: MarketStatus[] = ['active', 'preparing', 'expired', 'resolved'];
 
 export function HomePage() {
+  const [markets, setMarkets] = useState<Market[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadMarkets();
+  }, []);
+
+  const loadMarkets = async () => {
+    if (!isDeployed()) {
+      setError('Contract not deployed. Run `npm run chain` and `npm run deploy` first.');
+      setIsLoading(false);
+      return;
+    }
+    
+    try {
+      const allMarkets = await getAllMarkets();
+      setMarkets(allMarkets);
+    } catch (err) {
+      console.error('Failed to load markets:', err);
+      setError('Failed to load markets. Make sure MetaMask is connected to localhost:8545');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const marketsByStatus = statusOrder.reduce((acc, status) => {
-    acc[status] = mockMarkets.filter(m => m.status === status);
+    acc[status] = markets.filter(m => m.status === status);
     return acc;
-  }, {} as Record<MarketStatus, typeof mockMarkets>);
+  }, {} as Record<MarketStatus, Market[]>);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-24 space-y-4">
+        <p className="text-muted-foreground">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-12">

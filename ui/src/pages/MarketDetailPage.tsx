@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import { getMarketById } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,20 +8,51 @@ import { EncryptedIndicator } from '@/components/EncryptedIndicator';
 import { ZkProofBadge } from '@/components/ZkProofBadge';
 import { useWallet } from '@/contexts/WalletContext';
 import { formatDate, formatAmount, truncateAddress, truncateHash, formatRelativeTime } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Clock, TrendingUp, Users, Lock, 
-  CheckCircle, XCircle, Shield, Key 
+  CheckCircle, XCircle, Shield, Key, Loader2 
 } from 'lucide-react';
 import { toast } from 'sonner';
+import type { Market } from '@/types';
+import { getMarket, placeEncryptedBet } from '@/services/contractService';
+import { getBetProof } from '@/services/provers/betProver';
 
 export function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const market = getMarketById(id!);
-  const { isConnected, connect } = useWallet();
+  const { isConnected, connect, address } = useWallet();
+  const [market, setMarket] = useState<Market | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [betAmount, setBetAmount] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<'yes' | 'no' | null>(null);
+  const [isPlacingBet, setIsPlacingBet] = useState(false);
   const quickAmounts = ['0.1', '0.5', '1', '2', '5'];
+
+  useEffect(() => {
+    if (id) {
+      loadMarket();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const loadMarket = async () => {
+    try {
+      const marketData = await getMarket(BigInt(id!));
+      setMarket(marketData);
+    } catch (error) {
+      console.error('Failed to load market:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!market) {
     return (
@@ -43,16 +73,76 @@ export function MarketDetailPage() {
   const isActive = market.status === 'active';
   const committeeProgress = (market.committee.length / market.requiredCommittee) * 100;
 
-  const handlePlaceBet = (mode: 'verified' | 'unverified') => {
-    if (!selectedPosition || !betAmount) return;
-    toast.success(`Bet placed: ${betAmount} ETH on ${selectedPosition.toUpperCase()}`, {
-      description:
-        mode === 'verified'
-          ? 'Your bet has been verified and submitted'
-          : 'Your bet has been submitted without verification',
-    });
-    setBetAmount('');
-    setSelectedPosition(null);
+  const handlePlaceBet = async (mode: 'verified' | 'unverified') => {
+    if (!selectedPosition || !betAmount || !address) return;
+    
+    if (mode === 'unverified') {
+      toast.error('Only verified bets are supported');
+      return;
+    }
+    
+    setIsPlacingBet(true);
+    try {
+      // Generate proof using betProver
+      const side = selectedPosition === 'yes' ? 1n : 0n;
+      const amountWei = BigInt(Math.floor(parseFloat(betAmount) * 1e18));
+      const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+      const nonceKey = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+      const addressBigInt = BigInt(address);
+      
+      // Mock public key for now (would come from market.publicKey)
+      const PK: [bigint, bigint] = [1n, 2n];
+      const comm = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+      
+      const proof = await getBetProof(
+        PK,
+        comm,
+        amountWei,
+        addressBigInt,
+        salt,
+        side,
+        nonceKey
+      );
+      
+      // Convert commitment and cypherText to bytes32
+      const commitment = '0x' + comm.toString(16).padStart(64, '0');
+      const cypherText = '0x' + proof.encryptedMessage[0].toString(16).padStart(64, '0');
+      
+      // Prepare public signals (6 elements)
+      const publicSignals: bigint[] = [
+        proof.encryptedMessage[0],
+        proof.encryptedMessage[1],
+        proof.ephemeralKey[0],
+        proof.ephemeralKey[1],
+        comm,
+        0n
+      ];
+      
+      await placeEncryptedBet(
+        BigInt(id!),
+        commitment,
+        cypherText,
+        proof.a,
+        proof.b,
+        proof.c,
+        publicSignals,
+        betAmount
+      );
+      
+      toast.success(`Bet placed: ${betAmount} ETH on ${selectedPosition.toUpperCase()}`, {
+        description: 'Your bet has been verified and submitted',
+      });
+      setBetAmount('');
+      setSelectedPosition(null);
+      await loadMarket();
+    } catch (error) {
+      console.error('Failed to place bet:', error);
+      toast.error('Failed to place bet', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    } finally {
+      setIsPlacingBet(false);
+    }
   };
 
   return (
@@ -188,11 +278,15 @@ export function MarketDetailPage() {
                       <div className="space-y-1">
                         <Button
                           className="w-full"
-                          disabled={!selectedPosition || !betAmount}
+                          disabled={!selectedPosition || !betAmount || isPlacingBet}
                           onClick={() => handlePlaceBet('verified')}
                         >
-                          <Shield className="h-4 w-4 mr-2" />
-                          Place Verified Bet
+                          {isPlacingBet ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Shield className="h-4 w-4 mr-2" />
+                          )}
+                          {isPlacingBet ? 'Placing...' : 'Place Verified Bet'}
                         </Button>
                         <p className="text-[11px] leading-4 text-muted-foreground">
                           Requires proof generation (takes time) and costs more gas.

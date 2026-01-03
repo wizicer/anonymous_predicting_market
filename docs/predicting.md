@@ -205,7 +205,7 @@ TODO:
   [ ] zk-bet
   [ ] zk-batch-open
 [ ] contracts:
-  [ ] prediction.sol
+  [x] prediction.sol
 [ ] ui:
   [ ] home
   [ ] create
