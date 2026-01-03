@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Anonymous Predicting Market",
   "scripts": {
-    "build:bet": "bash ./scripts/compile.sh circuits/Bet_main && bash ./scripts/cpcircuit.sh circuits/Bet",
-    "build:open": "bash ./scripts/compile.sh circuits/BatchOpen_main && bash ./scripts/cpcircuit.sh circuits/BatchOpen",
+    "build:bet": "bash ./scripts/compile.sh circuits/src/Bet_main && bash ./scripts/cpcircuit.sh circuits/src/Bet",
+    "build:open": "bash ./scripts/compile.sh circuits/src/BatchOpen_main && bash ./scripts/cpcircuit.sh circuits/src/BatchOpen",
     "build:circuits": "npm run build:bet && npm run build:open",
     "setup:ptau": "wget -O pot_final.ptau https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_19.ptau",
     "build": "npm run build:circuits",

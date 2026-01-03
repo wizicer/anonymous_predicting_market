@@ -8,6 +8,11 @@ MAIN_NAME=${CIRCUIT_NAME}_main
 
 set -e # stop for errors
 
+# If CIRCUIT_PATH is "." or empty, default to circuits/src
+if [ "$CIRCUIT_PATH" = "." ] || [ -z "$CIRCUIT_PATH" ]; then
+    CIRCUIT_PATH="circuits/src"
+fi
+
 mkdir -p ./ui/src/generated/
 
 TARGET_FILE="./ui/src/generated/${CIRCUIT_NAME}Verifier.sol"
