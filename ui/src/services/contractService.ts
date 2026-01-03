@@ -145,7 +145,7 @@ interface RawMarketData {
   question: string;
   description: string;
   salt: bigint;
-  status: number;
+  status: bigint;
   expiresAt: bigint;
   requiredCommittee: number;
   requiredReputation: number;
@@ -162,7 +162,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
   const data: RawMarketData = await contract.markets(marketId);
   const committee = await getCommitteeMembers(marketId);
   
-  const status = marketStatusToString(data.status);
+  const status = marketStatusToString(Number(data.status));
   const outcome = outcomeToString(data.outcome);
   
   return {
