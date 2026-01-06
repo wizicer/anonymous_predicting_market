@@ -15,6 +15,7 @@
     "build": "npm run build:circuits && npm run compile && npm run build:ui",
     "test:gas": "cross-env REPORT_GAS=true hardhat test",
     "test": "hardhat test",
+    "dev:ui": "npm run dev --workspace=ui",
     "dev:circuit": "nodemon --watch circuits --ext circom --exec circom -l ./node_modules",
     "compile": "hardhat compile",
     "chain:node": "hardhat node",
