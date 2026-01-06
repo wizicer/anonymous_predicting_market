@@ -9,7 +9,8 @@ import {
   MarketDetailPage, 
   CreateMarketPage, 
   CommitteePage, 
-  OraclePage 
+  OraclePage,
+  DeployPage 
 } from '@/pages';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
               <Route path="/create" element={<CreateMarketPage />} />
               <Route path="/committee/*" element={<CommitteePage />} />
               <Route path="/oracle" element={<OraclePage />} />
+              <Route path="/deploy" element={<DeployPage />} />
             </Routes>
           </main>
         </div>
