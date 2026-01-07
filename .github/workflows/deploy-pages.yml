@@ -31,23 +31,13 @@ jobs:
         run: npm ci
 
       - name: Download circuits from latest release
-        run: |
-          echo "Fetching latest release..."
-          RELEASE_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.assets[] | select(.name == "circuits.zip") | .browser_download_url')
-          
-          if [ -z "$RELEASE_URL" ] || [ "$RELEASE_URL" = "null" ]; then
-            echo "Warning: circuits.zip not found in latest release, skipping..."
-          else
-            echo "Downloading circuits.zip from: $RELEASE_URL"
-            curl -L -o circuits.zip "$RELEASE_URL"
-            
-            echo "Extracting circuits to ui/public/circuits..."
-            mkdir -p ui/public/circuits
-            unzip -o circuits.zip -d ui/public/circuits
-            
-            echo "Circuits extracted successfully!"
-            ls -la ui/public/circuits
-          fi
+        uses: robinraju/release-downloader@v1
+        with:
+          latest: true
+          fileName: 'circuits.zip'
+          out-file-path: 'ui/public'
+          extract: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build contracts and artifacts
         run: |
