@@ -1,0 +1,79 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download circuits from latest release
+        run: |
+          echo "Fetching latest release..."
+          RELEASE_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.assets[] | select(.name == "circuits.zip") | .browser_download_url')
+          
+          if [ -z "$RELEASE_URL" ] || [ "$RELEASE_URL" = "null" ]; then
+            echo "Warning: circuits.zip not found in latest release, skipping..."
+          else
+            echo "Downloading circuits.zip from: $RELEASE_URL"
+            curl -L -o circuits.zip "$RELEASE_URL"
+            
+            echo "Extracting circuits to ui/public/circuits..."
+            mkdir -p ui/public/circuits
+            unzip -o circuits.zip -d ui/public/circuits
+            
+            echo "Circuits extracted successfully!"
+            ls -la ui/public/circuits
+          fi
+
+      - name: Build contracts and artifacts
+        run: |
+          npm run compile
+          npm run build:artifacts
+
+      - name: Build UI
+        run: npm run build:ui
+        env:
+          NODE_ENV: production
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './ui/dist'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
