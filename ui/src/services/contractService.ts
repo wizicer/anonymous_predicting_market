@@ -168,6 +168,21 @@ export async function getMarket(marketId: bigint): Promise<Market> {
   const status = marketStatusToString(Number(data.status));
   const outcome = outcomeToString(Number(data.outcome));
   
+  // Fetch all bets for this market
+  const betData = await getAllBets(marketId);
+  const bets = betData.map((bet, index) => ({
+    id: `${marketId}-${index}`,
+    bettor: bet.bettor,
+    commitment: bet.commitment,
+    encryptedData: bet.cypherText,
+    timestamp: new Date(Number(bet.timestamp) * 1000),
+    amount: Number(bet.amount) / 1e18, // Convert from wei to ETH
+    proof: bet.verified ? 'verified' : undefined,
+  }));
+  
+  // Calculate total volume from bets
+  const totalVolume = bets.reduce((sum, bet) => sum + (bet.amount || 0), 0);
+  
   return {
     id: marketId.toString(),
     question: data.question,
@@ -180,7 +195,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     outcome,
     yesPercentage: 0, // Calculated after resolution
     noPercentage: 0,
-    totalVolume: 0, // Would need to track from events
+    totalVolume,
     totalBets: Number(data.betCount),
     committee,
     minimumCommittee: Number(data.minCommittee),
@@ -189,7 +204,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     publicKey: data.publicKeyX !== '0x0000000000000000000000000000000000000000000000000000000000000000' 
       ? data.publicKeyX + data.publicKeyY.slice(2) 
       : undefined,
-    bets: [], // Would need to fetch from events or separate calls
+    bets,
   };
 }
 
