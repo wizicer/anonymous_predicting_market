@@ -101,8 +101,7 @@ export async function placeEncryptedBet(
   const tx = await contract.placeEncryptedBet(
     marketId,
     commitment,
-    cypherText[0],
-    cypherText[1],
+    cypherText,
     a,
     b,
     c,

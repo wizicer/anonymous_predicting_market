@@ -14,7 +14,7 @@ export const PREDICTION_MARKET_ABI = [
   "function submitKeyShare(uint256 marketId, uint256 key) external",
   
   // Betting functions
-  "function placeEncryptedBet(uint256 marketId, bytes32 commitment, bytes32 cypherText, uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[6] calldata publicSignals) external payable",
+  "function placeEncryptedBet(uint256 marketId, bytes32 commitment, bytes32[2] cypherText, uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[10] calldata publicSignals) external payable",
   
   // Oracle functions
   "function submitOutcome(uint256 marketId, uint8 outcome) external",

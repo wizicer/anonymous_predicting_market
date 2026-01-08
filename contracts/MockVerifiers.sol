@@ -9,7 +9,7 @@ contract MockBetVerifier {
         uint256[2] calldata,
         uint256[2][2] calldata,
         uint256[2] calldata,
-        uint256[6] calldata
+        uint256[10] calldata
     ) external pure returns (bool) {
         return true;
     }

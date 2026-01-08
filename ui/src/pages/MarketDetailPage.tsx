@@ -104,10 +104,13 @@ export function MarketDetailPage() {
       const comm = inputs.comm;
 
       // generate proof
-      const PK: [bigint, bigint] = [12491931337615216906644451308100368990772328332823118861435481277128519010406n, 4085398734649953375506534926466287042440660224509217955443595497259710547300n];
-      
+      const marketPK = market.publicKey;
+      const marketPKArray: [bigint, bigint] = [
+        BigInt('0x' + (marketPK?.slice(2, 66) ?? '0')),
+        BigInt('0x' + (marketPK?.slice(66, 130) ?? '0'))
+      ];
       const proof = await getBetProof(
-        PK,
+        marketPKArray,
         comm,
         amountWei,
         addressBigInt,
@@ -116,33 +119,25 @@ export function MarketDetailPage() {
         nonceKey,
         encodedSidePoint
       );
-      
       // Convert commitment and cypherText to bytes32
       // Both are uint256 values that need to be converted to bytes32 (32 bytes = 64 hex chars)
       const commitment = '0x' + comm.toString(16).padStart(64, '0');
       // cypherText should be the first element of encryptedMessage as bytes32
       // Note: uint256 fits in bytes32, so we just pad to 64 hex characters
-      const cypherText: [string, string] = ['0x' + proof.encryptedMessage[0].toString(16).padStart(64, '0'), '0x' + proof.encryptedMessage[1].toString(16).padStart(64, '0')];
+      const cypherText: [string, string] = [proof.encryptedMessage[0].toString(16).padStart(64, '0'), proof.encryptedMessage[1].toString(16).padStart(64, '0')];
       
-      // Debug: Verify bytes32 conversion
-      console.log('Commitment (bytes32):', commitment);
-      console.log('CypherText (bytes32):', cypherText);
-      console.log('encryptedMessage[0] (uint256):', proof.encryptedMessage[0].toString());
-      console.log('encryptedMessage[1] (uint256):', proof.encryptedMessage[1].toString());
-      
-      // Prepare public signals (6 elements)
-      const publicSignals: bigint[] = [
-        proof.encryptedMessage[0],
-        proof.encryptedMessage[1],
-        proof.ephemeralKey[0],
-        proof.ephemeralKey[1],
-        PK[0],
-        PK[1],
-        comm,
-        amountWei,
-        addressBigInt,
-        salt,
-      ];
+      const publicSignals = [
+        proof.publicSignals[4], // PK[0]
+        proof.publicSignals[5], // PK[1]
+        proof.publicSignals[6], // comm
+        proof.publicSignals[7], // amount
+        proof.publicSignals[8], // address
+        proof.publicSignals[9], // salt
+        proof.publicSignals[0], // encryptedMessage[0]
+        proof.publicSignals[1], // encryptedMessage[1]
+        proof.publicSignals[2], // ephemeralKey[0]
+        proof.publicSignals[3], // ephemeralKey[1]
+      ];   
       
       await placeEncryptedBet(
         BigInt(id!),

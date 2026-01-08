@@ -154,7 +154,7 @@ contract AnonymousPredictionMarket {
     function placeEncryptedBet(
         uint256 marketId,
         bytes32 commitment,
-        bytes32 cypherText,
+        bytes32[2] calldata cypherText,
         uint256[2] calldata a,
         uint256[2][2] calldata b,
         uint256[2] calldata c,
@@ -173,7 +173,7 @@ contract AnonymousPredictionMarket {
         m.betInfo[betId] = EncryptedBet({
             bettor: msg.sender,
             commitment: commitment,
-            cypherText: cypherText,
+            cypherText: bytes32(uint256(cypherText[0]) | (uint256(cypherText[1]) << 128)),
             amount: msg.value,
             timestamp: block.timestamp,
             verified: true
