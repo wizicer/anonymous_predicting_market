@@ -362,15 +362,25 @@ export class DkgCoordinator {
     const fromIndex = msg.fromIndex;
     const share = BigInt(msg.payload.share);
     
+    // Find peerId for logging
+    let peerId = 'unknown';
+    for (const [addr, pid] of this.peerIds) {
+      const memberIndex = this.committeeMembers.findIndex(m => m.address.toLowerCase() === addr) + 1;
+      if (memberIndex === fromIndex) {
+        peerId = pid;
+        break;
+      }
+    }
+    
     // Verify share against sender's commitments
     const senderCommitments = this.receivedCommitments.get(fromIndex);
     if (!senderCommitments) {
-      console.warn('[DkgCoordinator] No commitments from sender:', fromIndex);
+      console.warn('[DkgCoordinator] No commitments from sender:', fromIndex, 'peerId:', peerId);
       return;
     }
     
     if (!verifyReceivedShare(share, senderCommitments, this.myIndex)) {
-      console.error('[DkgCoordinator] Invalid share from:', fromIndex);
+      console.error('[DkgCoordinator] Invalid share from:', fromIndex, 'peerId:', peerId);
       return;
     }
     
