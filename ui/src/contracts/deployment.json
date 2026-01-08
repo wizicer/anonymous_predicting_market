@@ -1,7 +1,7 @@
 {
-  "betVerifier": "0xe025aD554d948ECcA250aA33a60D8ef6e2975840",
-  "batchOpenVerifier": "0xe2D3212cE1463bEA71C1f52d4bC12bC12ba114D2",
-  "predictionMarket": "0x67B079dF400AA319bA7B7490279A207C0E13a8aC",
-  "chainId": 5003,
-  "deployedAt": "2026-01-06T11:26:44.010Z"
+  "betVerifier": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "batchOpenVerifier": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "predictionMarket": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "chainId": 31337,
+  "deployedAt": "2026-01-08T13:40:27.912Z"
 }

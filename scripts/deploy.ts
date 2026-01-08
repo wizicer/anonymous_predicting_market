@@ -6,14 +6,14 @@ async function main() {
   console.log("Deploying contracts...");
 
   // Deploy mock verifiers for local development
-  const MockBetVerifier = await ethers.getContractFactory("BetVerifier");
-  const betVerifier = await MockBetVerifier.deploy();
+  const BetVerifier = await ethers.getContractFactory("BetVerifier");
+  const betVerifier = await BetVerifier.deploy();
   await betVerifier.waitForDeployment();
   const betVerifierAddress = await betVerifier.getAddress();
-  console.log("MockBetVerifier deployed to:", betVerifierAddress);
+  console.log("BetVerifier deployed to:", betVerifierAddress);
 
-  const MockBatchOpenVerifier = await ethers.getContractFactory("MockBatchOpenVerifier");
-  const batchOpenVerifier = await MockBatchOpenVerifier.deploy();
+  const BatchOpenVerifier = await ethers.getContractFactory("BatchOpenVerifier");
+  const batchOpenVerifier = await BatchOpenVerifier.deploy();
   await batchOpenVerifier.waitForDeployment();
   const batchOpenVerifierAddress = await batchOpenVerifier.getAddress();
   console.log("MockBatchOpenVerifier deployed to:", batchOpenVerifierAddress);

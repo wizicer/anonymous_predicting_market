@@ -7,6 +7,7 @@ export interface BatchOpenProof {
   a: [bigint, bigint];
   b: [[bigint, bigint], [bigint, bigint]];
   c: [bigint, bigint];
+  publicSignals: bigint[];
 }
 
 export async function getBatchOpenProof(
@@ -69,5 +70,6 @@ export async function getBatchOpenProof(
     a: eep[0],
     b: eep[1],
     c: eep[2],
+    publicSignals: eep[3],
   };
 }

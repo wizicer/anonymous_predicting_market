@@ -210,26 +210,6 @@ export function CommitteeDecryptionPage() {
         console.log('encryptedMessage:', encryptedMessage.x.toString(), encryptedMessage.y.toString());
         console.log('ephemeralKey:', ephemeralKey.x.toString(), ephemeralKey.y.toString());
         console.log('reconstructedSecret:', reconstructedSecret.toString());
-
-        // 从市场获取公钥
-        const market = markets.find(m => m.id === marketId);
-        if (market?.publicKey) {
-          // 解析公钥为 Point 格式
-          const publicKey: Point = [
-            BigInt('0x' + market.publicKey.slice(2, 66)),
-            BigInt('0x' + market.publicKey.slice(66, 130))
-          ];
-          console.log('publicKey:', publicKey[0].toString(), publicKey[1].toString());
-          console.log('reconstructedSecret:', reconstructedSecret.toString());
-          // 验证 sk 和 pk 是否匹配
-          const isValid = verifyReconstruction(reconstructedSecret, publicKey);
-          if (!isValid) {
-            console.error('WARNING: Reconstructed secret does NOT match public key!');
-            toast.error('密钥验证失败：重构的私钥与公钥不匹配');
-            return;
-          }
-          console.log('✓ 密钥验证通过：重构的私钥与公钥匹配');
-        }
         
         // Decrypt using the reconstructed secret
         const decryptedPoint = decryptFromCircom(encryptedMessage, ephemeralKey, reconstructedSecret);
@@ -293,19 +273,24 @@ export function CommitteeDecryptionPage() {
       encodedSidePoint,
     );
     
-    // Pad publicSignals to 23 elements (3 + MAX_BETS * 2 where MAX_BETS = 10)
-    const publicSignals: bigint[] = [proof.sum0, proof.sum1, 0n];
-    while (publicSignals.length < 23) {
-      publicSignals.push(0n);
-    }
+    console.log('proof:', proof);
+
+    // // Pad publicSignals to 23 elements (3 + MAX_BETS * 2 where MAX_BETS = 10)
+    // const publicSignals: bigint[] = [proof.sum0, proof.sum1, 0n];
+    // while (publicSignals.length < 23) {
+    //   publicSignals.push(0n);
+    // }
+
+    console.log('publicSignals:', proof.publicSignals);
     
     await batchOpenAndResolve(
       BigInt(marketId),
       proof.a,
       proof.b,
       proof.c,
-      publicSignals
+      proof.publicSignals
     );
+    console.log("batch Open and Resolve successful");
     
     // Clear decrypted data after successful resolution
     setDecryptedData(prev => {
