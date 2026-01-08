@@ -371,7 +371,7 @@ export function CommitteeKeyGenerationPage() {
                     {isFull && (
                       <Button
                         onClick={() => handleProvePublicKey(market.id)}
-                        disabled={loadingStates[`prove-${market.id}`]}
+                        disabled={loadingStates[`prove-${market.id}`] || dkgState?.status !== 'complete'}
                         className="ml-auto"
                       >
                         {loadingStates[`prove-${market.id}`] && (
