@@ -202,6 +202,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     publicKey: data.publicKeyX !== '0x0000000000000000000000000000000000000000000000000000000000000000' 
       ? data.publicKeyX + data.publicKeyY.slice(2) 
       : undefined,
+    salt: data.salt,
     bets,
   };
 }

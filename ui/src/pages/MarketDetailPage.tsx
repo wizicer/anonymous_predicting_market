@@ -90,7 +90,7 @@ export function MarketDetailPage() {
       const side = selectedPosition === 'yes' ? 1n : 0n;
       const amountWei = BigInt(Math.floor(parseFloat(betAmount) * 1e18));
       console.log('amountWei:', amountWei);
-      const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+      const salt = market?.salt ?? 0n;
       // Convert Ethereum address (hex string) to bigint
       // Address format: "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199"
       const addressBigInt = BigInt(address.startsWith('0x') ? address : `0x${address}`);

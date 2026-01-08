@@ -12,7 +12,7 @@ import { getAllMarkets, submitKeyShare, batchOpenAndResolve, getAllBets, getComm
 import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 import { decryptFromCircom, babyJub } from '@/services/encryption';
 import { useWallet } from '@/contexts/useWallet';
-import { getEphemeralKey, reconstructSecret } from '@/services/dkg';
+import { getEphemeralKey, reconstructSecret, verifyReconstruction, type Point } from '@/services/dkg';
 import { getEffectiveStatus } from '@/lib/marketStatus';
 
 type LoadingStates = Record<string, boolean>;
@@ -146,6 +146,8 @@ export function CommitteeDecryptionPage() {
     const reconstructedSecret = reconstructSecret(shares);
     console.log('[CommitteeDecryptionPage] Reconstructed secret from', shares.length, 'shares');
 
+    
+
     // Decrypt each bet using the reconstructed secret
     const decryptedBets: DecryptedBetData[] = [];
     
@@ -163,8 +165,35 @@ export function CommitteeDecryptionPage() {
         // Create the ephemeral key point from stored coordinates
         const ephemeralKey = babyJub.fromAffine({ x: bet.ephemeralKeyX, y: bet.ephemeralKeyY });
         
+        console.log('encryptedMessage:', encryptedMessage.x.toString(), encryptedMessage.y.toString());
+        console.log('ephemeralKey:', ephemeralKey.x.toString(), ephemeralKey.y.toString());
+        console.log('reconstructedSecret:', reconstructedSecret.toString());
+
+        // 从市场获取公钥
+        const market = markets.find(m => m.id === marketId);
+        if (market?.publicKey) {
+          // 解析公钥为 Point 格式
+          const publicKey: Point = [
+            BigInt('0x' + market.publicKey.slice(2, 66)),
+            BigInt('0x' + market.publicKey.slice(66, 130))
+          ];
+          console.log('publicKey:', publicKey[0].toString(), publicKey[1].toString());
+          console.log('reconstructedSecret:', reconstructedSecret.toString());
+          // 验证 sk 和 pk 是否匹配
+          const isValid = verifyReconstruction(reconstructedSecret, publicKey);
+          if (!isValid) {
+            console.error('WARNING: Reconstructed secret does NOT match public key!');
+            toast.error('密钥验证失败：重构的私钥与公钥不匹配');
+            return;
+          }
+          console.log('✓ 密钥验证通过：重构的私钥与公钥匹配');
+        }
+        
         // Decrypt using the reconstructed secret
         const decryptedPoint = decryptFromCircom(encryptedMessage, ephemeralKey, reconstructedSecret);
+        console.log('decryptedPoint:', decryptedPoint.x.toString(), decryptedPoint.y.toString());
+
+        
         
         // Determine the side from the decrypted point
         // The encoded side point's x coordinate parity indicates the side (0 = No, 1 = Yes)
@@ -205,7 +234,8 @@ export function CommitteeDecryptionPage() {
     const N = BigInt(bets.length);
     const comm = bets.map(b => BigInt(b.commitment));
     const amount = bets.map(b => b.amount);
-    const salt = 0n; // Would come from market data
+    const market = markets.find(m => m.id === marketId);
+    const salt = market?.salt ?? 0n;
     const side = bets.map(b => BigInt(b.decryptedSide));
     const address = bets.map(b => BigInt(b.bettor));
     const encodedSidePoint: [bigint, bigint][] = bets.map(b => [b.decryptedSidePoint.x, b.decryptedSidePoint.y]);

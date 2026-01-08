@@ -43,6 +43,7 @@ export interface Market {
   requiredCommittee: number;
   requiredReputation: number;
   publicKey?: string;
+  salt?: bigint;
   bets: EncryptedBet[];
 }
 

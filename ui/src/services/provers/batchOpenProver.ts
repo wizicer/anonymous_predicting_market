@@ -30,6 +30,11 @@ export async function getBatchOpenProof(
   if (address.length !== Number(N))
     throw new Error("Invalid address length, required N elements");
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (BigInt as any).prototype.toJSON = function() {
+    return this.toString();
+  };
+  
   console.log(JSON.stringify({comm,
     amount,
     salt,
