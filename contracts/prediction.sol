@@ -22,7 +22,7 @@ interface IBatchOpenVerifier {
 }
 
 contract AnonymousPredictionMarket {
-    uint256 public constant ORACLE_DELAY = 24 hours;
+    uint256 public constant ORACLE_DELAY = 1 minutes;
 
     IBetVerifier public betVerifier;
     IBatchOpenVerifier public batchOpenVerifier;
