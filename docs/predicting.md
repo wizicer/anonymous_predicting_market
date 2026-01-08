@@ -201,20 +201,20 @@ TODO:
 <!-- _class: small -->
 ## TODO
 
-[ ] circuits (include ts witness generation):
-  [ ] zk-bet
-  [ ] zk-batch-open
+[x] circuits (include ts witness generation):
+  [x] zk-bet
+  [x] zk-batch-open
 [x] contracts:
   [x] prediction.sol
 [ ] ui:
   [x] home
   [x] create
   [x] DKG
-  [ ] decryption (proof)
+  [x] decryption (proof)
   [x] oracle
   [ ] detail
-  [ ] bet (proof)
-[ ] ui functions:
+  [x] bet (proof)
+[x] ui functions:
   [x] metamask
   [x] snarkjs
 [x] mock:
@@ -222,7 +222,7 @@ TODO:
   [x] DKG
 
 [ ] submission
-  [ ] deploy (demo url and contract address)
+  [.] deploy (demo url and contract address)
   [ ] demo video
   [ ] detail information (intro, description, progress, etc.)
 
