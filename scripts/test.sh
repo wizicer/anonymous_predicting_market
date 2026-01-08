@@ -35,9 +35,10 @@ cd ..
 
     snarkjs $PROTOCOL setup $CIRCUIT_NAME.r1cs $TAU_PATH ${CIRCUIT_NAME}_final.zkey
     # snarkjs zkey verify $CIRCUIT_NAME.r1cs $TAU_PATH ${CIRCUIT_NAME}_final.zkey
-    # snarkjs zkey export verificationkey ${CIRCUIT_NAME}_final.zkey verification_key.json
+    snarkjs zkey export verificationkey ${CIRCUIT_NAME}_final.zkey verification_key.json
     snarkjs $PROTOCOL prove ${CIRCUIT_NAME}_final.zkey witness.wtns proof.json public.json
     # snarkjs zkey export solidityverifier ${CIRCUIT_NAME}_final.zkey verifier.sol
     # snarkjs zkey export soliditycalldata public.json proof.json
     # sed -i -e "s/Verifier/"${CIRCUIT_NAME}Verifier"/g" verifier.sol
+    snarkjs $PROTOCOL verify verification_key.json public.json proof.json
 )
