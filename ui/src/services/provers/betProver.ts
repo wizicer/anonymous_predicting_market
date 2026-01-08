@@ -7,6 +7,7 @@ export interface BetProof {
   a: [bigint, bigint];
   b: [[bigint, bigint], [bigint, bigint]];
   c: [bigint, bigint];
+  publicSignals: bigint[];
 }
 
 export async function getBetProof(
@@ -19,6 +20,10 @@ export async function getBetProof(
   nonceKey: bigint,
   encodedSidePoint: [bigint, bigint]
 ): Promise<BetProof> {
+  BigInt.prototype.toJSON = function() {
+    return this.toString();
+  };
+  console.log(JSON.stringify({PK, comm, amount, address, salt, side, nonceKey, encodedSidePoint}));
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     {
       PK,
@@ -31,8 +36,8 @@ export async function getBetProof(
       encodedSidePoint,
     },
 
-    "/test/circuits_generator/Bet.wasm",
-    "/test/circuits_generator/Bet_final.zkey"
+    "/circuits/Bet.wasm",
+    "/circuits/Bet_final.zkey"
   );
 
   const ep = await snarkjs.groth16.exportSolidityCallData(
@@ -47,5 +52,6 @@ export async function getBetProof(
     a: eep[0],
     b: eep[1],
     c: eep[2],
+    publicSignals: eep[3].map((s: string) => BigInt(s)),
   };
 }

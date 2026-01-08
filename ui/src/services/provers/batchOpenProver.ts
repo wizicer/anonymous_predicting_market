@@ -30,6 +30,13 @@ export async function getBatchOpenProof(
   if (address.length !== Number(N))
     throw new Error("Invalid address length, required N elements");
 
+  console.log(JSON.stringify({comm,
+    amount,
+    salt,
+    side,
+    address,
+    encodedSidePoint}));
+
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     {
       comm,
@@ -39,10 +46,11 @@ export async function getBatchOpenProof(
       address,
       encodedSidePoint,
     },
-
-    "/test/circuits_generator/BatchOpen.wasm",
-    "/test/circuits_generator/BatchOpen_final.zkey"
+  
+    "/circuits/BatchOpen.wasm",
+    "/circuits/BatchOpen_final.zkey"
   );
+
 
   const ep = await snarkjs.groth16.exportSolidityCallData(
     proof,
