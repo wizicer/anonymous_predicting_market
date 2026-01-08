@@ -14,7 +14,7 @@ export const PREDICTION_MARKET_ABI = [
   "function submitKeyShare(uint256 marketId, uint256 key) external",
   
   // Betting functions
-  "function placeEncryptedBet(uint256 marketId, bytes32 commitment, bytes32[2] cypherText, uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[10] calldata publicSignals) external payable",
+  "function placeEncryptedBet(uint256 marketId, bytes32 commitment, uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[10] calldata publicSignals) external payable",
   
   // Oracle functions
   "function submitOutcome(uint256 marketId, uint8 outcome) external",
@@ -28,7 +28,7 @@ export const PREDICTION_MARKET_ABI = [
   "function getCommittee(uint256 marketId) external view returns (address[])",
   "function getCommitteeCommitment(uint256 marketId, address member) external view returns (uint256)",
   "function getCommitteeKey(uint256 marketId, address member) external view returns (uint256)",
-  "function getBet(uint256 marketId, uint32 betId) external view returns (address bettor, bytes32 commitment, bytes32 cypherText, uint256 amount, uint256 timestamp, bool verified)",
+  "function getBet(uint256 marketId, uint32 betId) external view returns (address bettor, bytes32 commitment, uint256 cypherTextX, uint256 cypherTextY, uint256 ephemeralKeyX, uint256 ephemeralKeyY, uint256 amount, uint256 timestamp, bool verified)",
   "function getBetCount(uint256 marketId) external view returns (uint32)",
 ] as const;
 

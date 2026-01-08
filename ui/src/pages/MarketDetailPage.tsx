@@ -119,17 +119,12 @@ export function MarketDetailPage() {
         nonceKey,
         encodedSidePoint
       );
-      // Convert commitment and cypherText to bytes32
-      // Both are uint256 values that need to be converted to bytes32 (32 bytes = 64 hex chars)
+      // Convert commitment to bytes32
       const commitment = '0x' + comm.toString(16).padStart(64, '0');
-      // cypherText should be the first element of encryptedMessage as bytes32
-      // Note: uint256 fits in bytes32, so we just pad to 64 hex characters
-      const cypherText: [string, string] = [proof.encryptedMessage[0].toString(16).padStart(64, '0'), proof.encryptedMessage[1].toString(16).padStart(64, '0')];
       
       await placeEncryptedBet(
         BigInt(id!),
         commitment,
-        cypherText,
         proof.a,
         proof.b,
         proof.c,

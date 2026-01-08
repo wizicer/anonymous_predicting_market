@@ -38,7 +38,10 @@ contract AnonymousPredictionMarket {
     struct EncryptedBet {
         address bettor;
         bytes32 commitment;
-        bytes32 cypherText;
+        uint256 cypherTextX;
+        uint256 cypherTextY;
+        uint256 ephemeralKeyX;
+        uint256 ephemeralKeyY;
         uint256 amount;
         uint256 timestamp;
         bool verified;
@@ -154,7 +157,6 @@ contract AnonymousPredictionMarket {
     function placeEncryptedBet(
         uint256 marketId,
         bytes32 commitment,
-        bytes32[2] calldata cypherText,
         uint256[2] calldata a,
         uint256[2][2] calldata b,
         uint256[2] calldata c,
@@ -173,7 +175,10 @@ contract AnonymousPredictionMarket {
         m.betInfo[betId] = EncryptedBet({
             bettor: msg.sender,
             commitment: commitment,
-            cypherText: bytes32(uint256(cypherText[0]) | (uint256(cypherText[1]) << 128)),
+            cypherTextX: publicSignals[6],
+            cypherTextY: publicSignals[7],
+            ephemeralKeyX: publicSignals[8],
+            ephemeralKeyY: publicSignals[9],
             amount: msg.value,
             timestamp: block.timestamp,
             verified: true
@@ -245,13 +250,16 @@ contract AnonymousPredictionMarket {
     ) external view returns (
         address bettor,
         bytes32 commitment,
-        bytes32 cypherText,
+        uint256 cypherTextX,
+        uint256 cypherTextY,
+        uint256 ephemeralKeyX,
+        uint256 ephemeralKeyY,
         uint256 amount,
         uint256 timestamp,
         bool verified
     ) {
         EncryptedBet storage bet = markets[marketId].betInfo[betId];
-        return (bet.bettor, bet.commitment, bet.cypherText, bet.amount, bet.timestamp, bet.verified);
+        return (bet.bettor, bet.commitment, bet.cypherTextX, bet.cypherTextY, bet.ephemeralKeyX, bet.ephemeralKeyY, bet.amount, bet.timestamp, bet.verified);
     }
 
     function getBetCount(uint256 marketId) external view returns (uint32) {

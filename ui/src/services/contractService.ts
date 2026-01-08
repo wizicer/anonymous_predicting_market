@@ -90,7 +90,6 @@ export async function submitKeyShare(
 export async function placeEncryptedBet(
   marketId: bigint,
   commitment: string,
-  cypherText: [string, string],
   a: [bigint, bigint],
   b: [[bigint, bigint], [bigint, bigint]],
   c: [bigint, bigint],
@@ -101,7 +100,6 @@ export async function placeEncryptedBet(
   const tx = await contract.placeEncryptedBet(
     marketId,
     commitment,
-    cypherText,
     a,
     b,
     c,
@@ -174,7 +172,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     id: `${marketId}-${index}`,
     bettor: bet.bettor,
     commitment: bet.commitment,
-    encryptedData: bet.cypherText,
+    encryptedData: `${bet.cypherTextX.toString()},${bet.cypherTextY.toString()}`,
     timestamp: new Date(Number(bet.timestamp) * 1000),
     amount: Number(bet.amount) / 1e18, // Convert from wei to ETH
     proof: bet.verified ? 'verified' : undefined,
@@ -249,7 +247,10 @@ export function isDeployed(): boolean {
 export interface BetData {
   bettor: string;
   commitment: string;
-  cypherText: string;
+  cypherTextX: bigint;
+  cypherTextY: bigint;
+  ephemeralKeyX: bigint;
+  ephemeralKeyY: bigint;
   amount: bigint;
   timestamp: bigint;
   verified: boolean;
@@ -262,8 +263,8 @@ export async function getBetCount(marketId: bigint): Promise<number> {
 
 export async function getBet(marketId: bigint, betId: number): Promise<BetData> {
   const contract = getContract();
-  const [bettor, commitment, cypherText, amount, timestamp, verified] = await contract.getBet(marketId, betId);
-  return { bettor, commitment, cypherText, amount, timestamp, verified };
+  const [bettor, commitment, cypherTextX, cypherTextY, ephemeralKeyX, ephemeralKeyY, amount, timestamp, verified] = await contract.getBet(marketId, betId);
+  return { bettor, commitment, cypherTextX, cypherTextY, ephemeralKeyX, ephemeralKeyY, amount, timestamp, verified };
 }
 
 export async function getAllBets(marketId: bigint): Promise<BetData[]> {

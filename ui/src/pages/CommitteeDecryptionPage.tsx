@@ -153,22 +153,22 @@ export function CommitteeDecryptionPage() {
       const bet = bets[i];
       
       try {
-        // Parse cypherText as two coordinates (ephemeral key and encrypted message)
-        // The cypherText is stored as bytes32, we need to parse it appropriately
-        // For now, we'll use mock decryption since the actual format depends on implementation
-        const cypherTextBigInt = BigInt(bet.cypherText);
+        // Use cypherTextX and cypherTextY directly from contract storage
+        const cypherTextX = bet.cypherTextX;
+        const cypherTextY = bet.cypherTextY;
         
-        // Mock: Create points from the cypherText (in production, parse actual encrypted data)
-        // The encrypted message would be stored differently in a real implementation
-        const mockEphemeralKey = babyJub.BASE.multiply(cypherTextBigInt % 1000n);
-        const mockEncryptedMessage = babyJub.BASE.multiply((cypherTextBigInt >> 10n) % 1000n);
+        // Create the encrypted message point from cypherText coordinates
+        const encryptedMessage = babyJub.fromAffine({ x: cypherTextX, y: cypherTextY });
+        
+        // Create the ephemeral key point from stored coordinates
+        const ephemeralKey = babyJub.fromAffine({ x: bet.ephemeralKeyX, y: bet.ephemeralKeyY });
         
         // Decrypt using the reconstructed secret
-        const decryptedPoint = decryptFromCircom(mockEncryptedMessage, mockEphemeralKey, reconstructedSecret);
+        const decryptedPoint = decryptFromCircom(encryptedMessage, ephemeralKey, reconstructedSecret);
         
         // Determine the side from the decrypted point
-        // In production, this would match against known encoded side points
-        const decryptedSide = Number(decryptedPoint.x % 2n); // Mock: use x coordinate parity
+        // The encoded side point's x coordinate parity indicates the side (0 = No, 1 = Yes)
+        const decryptedSide = Number(decryptedPoint.x % 2n);
         
         decryptedBets.push({
           betId: i,
