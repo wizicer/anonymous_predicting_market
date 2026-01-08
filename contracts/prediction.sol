@@ -175,10 +175,10 @@ contract AnonymousPredictionMarket {
         m.betInfo[betId] = EncryptedBet({
             bettor: msg.sender,
             commitment: commitment,
-            cypherTextX: publicSignals[6],
-            cypherTextY: publicSignals[7],
-            ephemeralKeyX: publicSignals[8],
-            ephemeralKeyY: publicSignals[9],
+            cypherTextX: publicSignals[0],
+            cypherTextY: publicSignals[1],
+            ephemeralKeyX: publicSignals[2],
+            ephemeralKeyY: publicSignals[3],
             amount: msg.value,
             timestamp: block.timestamp,
             verified: true
