@@ -160,6 +160,10 @@ export class PeerService {
       }
 
       const conn = this.peer.connect(peerId, { reliable: true });
+      if (!conn) {
+        reject(new Error('Failed to connect to peer'));
+        return;
+      }
 
       conn.on('open', () => {
         this.connections.set(peerId, conn);
