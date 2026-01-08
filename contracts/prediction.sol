@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-uint256 constant MAX_BETS = 3;
+uint256 constant MAX_BETS = 10;
 
 interface IBetVerifier {
     function verifyProof(

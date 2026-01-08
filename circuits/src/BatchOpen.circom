@@ -1,6 +1,7 @@
 pragma circom 2.1.0;
 
 include "../../node_modules/circomlib/circuits/poseidon.circom";
+include "../../node_modules/circomlib/circuits/bitify.circom";
 
 /*
 ZK-BatchOpen Circuit Prototype
@@ -17,7 +18,7 @@ public outputs:
     sum0, sum1
 
 statement:
-1. forall i: comm[i] = Poseidon(encodedSidePoint[i][0] || encodedSidePoint[i][1] || side || salt || amount[i] || address[i])
+1. for all valid i: comm[i] = Poseidon(encodedSidePoint[i][0] || encodedSidePoint[i][1] || side || salt || amount[i] || address[i])
 2. side[i] ∈ {0,1}
 3. sum0 = Σ( (1 - side[i]) * amount[i] )
    sum1 = Σ( side[i] * amount[i] )
@@ -25,10 +26,10 @@ statement:
 
 template BatchOpen(N) {
     // Public Inputs
+    signal input salt;
     signal input comm[N];
     signal input amount[N];
-    signal input salt;
-
+    
     // Private Inputs
     signal input side[N];
     signal input address[N];
@@ -42,11 +43,31 @@ template BatchOpen(N) {
     signal s[N];
     signal amount0[N];
     signal amount1[N];
+    signal selector[N];
     component c[N];
+    component isZero[N];
     signal sum0_accum[N + 1];
     signal sum1_accum[N + 1];
     sum0_accum[0] <== 0;
     sum1_accum[0] <== 0;
+
+    // if comm[i] != 0, then selector[i] == 1 else selector[i] == 0
+    for (var i = 0; i < N; i++) {
+        isZero[i] = IsZero();
+        isZero[i].in <== comm[i];
+        selector[i] <== 1 - isZero[i].out;
+    }
+
+    // if selector[i] == 1, then valid_side[i] == side[i] else valid_side[i] == 0
+    signal valid_side[N];
+    for (var i = 0; i < N; i++) {
+        valid_side[i] <== selector[i] * side[i];
+    }
+
+    signal valid_amount[N];
+    for (var i = 0; i < N; i++) {
+        valid_amount[i] <== selector[i] * amount[i];
+    }
 
     // ============================================================
     // Loop over batch
@@ -54,7 +75,7 @@ template BatchOpen(N) {
     for (var i = 0; i < N; i++) {
 
         // 1. side[i] ∈ {0,1}
-        s[i] <== side[i];
+        s[i] <== valid_side[i];
         0 === s[i] * (s[i] - 1);
 
         // 2. commitment check
@@ -67,11 +88,13 @@ template BatchOpen(N) {
         c[i].inputs[3] <== salt;
         c[i].inputs[4] <== amount[i];
         c[i].inputs[5] <== address[i];
-        c[i].out === comm[i];
+        // if selector[i] == 1, then c[i].out == comm[i]
+        // if selector[i] == 0, then pass the constraint
+        0 === selector[i] * (c[i].out - comm[i]);
 
         // 3. accumulate sum0 and sum1
-        amount0[i] <== (1 - s[i]) * amount[i];
-        amount1[i] <== s[i] * amount[i];
+        amount0[i] <== (1 - s[i]) * valid_amount[i];
+        amount1[i] <== s[i] * valid_amount[i];
 
         sum0_accum[i + 1] <== sum0_accum[i] + amount0[i];
         sum1_accum[i + 1] <== sum1_accum[i] + amount1[i];

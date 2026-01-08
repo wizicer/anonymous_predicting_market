@@ -262,9 +262,31 @@ export function CommitteeDecryptionPage() {
     const address = bets.map(b => BigInt(b.bettor));
     const encodedSidePoint: [bigint, bigint][] = bets.map(b => [b.decryptedSidePoint.x, b.decryptedSidePoint.y]);
 
+    const MAX_BETS = 10;
+    while (comm.length < MAX_BETS) {
+      comm.push(0n);
+    }
+    while (amount.length < MAX_BETS) {
+      amount.push(0n);
+    }
+    while (side.length < MAX_BETS) {
+      side.push(0n);
+    }
+    while (address.length < MAX_BETS) {
+      address.push(0n);
+    }
+    while (encodedSidePoint.length < MAX_BETS) {
+      encodedSidePoint.push([0n, 0n]);
+    }
+    console.log('comm:', comm);
+    console.log('amount:', amount);
+    console.log('side:', side);
+    console.log('address:', address);
+    console.log('encodedSidePoint:', encodedSidePoint);
+
     // Generate proof using batchOpenProver
     const proof = await getBatchOpenProof(
-      N,
+      MAX_BETS,
       comm,
       amount,
       salt,
@@ -274,13 +296,8 @@ export function CommitteeDecryptionPage() {
     );
     
     console.log('proof:', proof);
-
-    // // Pad publicSignals to 23 elements (3 + MAX_BETS * 2 where MAX_BETS = 10)
-    // const publicSignals: bigint[] = [proof.sum0, proof.sum1, 0n];
-    // while (publicSignals.length < 23) {
-    //   publicSignals.push(0n);
-    // }
-
+    console.log('sum0:', typeof proof.sum0 === 'string' ? BigInt(proof.sum0).toString() : proof.sum0.toString());
+    console.log('sum1:', typeof proof.sum1 === 'string' ? BigInt(proof.sum1).toString() : proof.sum1.toString());
     console.log('publicSignals:', proof.publicSignals);
     
     await batchOpenAndResolve(

@@ -11,7 +11,7 @@ export interface BatchOpenProof {
 }
 
 export async function getBatchOpenProof(
-  N: bigint,
+  N: number,
   comm: bigint[],
   amount: bigint[],
   salt: bigint,
@@ -19,16 +19,16 @@ export async function getBatchOpenProof(
   address: bigint[],
   encodedSidePoint: [bigint, bigint][]
 ): Promise<BatchOpenProof> {
-  if (comm.length !== Number(N))
+  if (comm.length !== N)
     throw new Error("Invalid comm length, required N elements");
 
-  if (amount.length !== Number(N))
+  if (amount.length !== N)
     throw new Error("Invalid amount length, required N elements");
 
-  if (side.length !== Number(N))
+  if (side.length !== N)
     throw new Error("Invalid side length, required N elements");
 
-  if (address.length !== Number(N))
+  if (address.length !== N)
     throw new Error("Invalid address length, required N elements");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

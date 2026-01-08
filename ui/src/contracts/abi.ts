@@ -20,7 +20,7 @@ export const PREDICTION_MARKET_ABI = [
   "function submitOutcome(uint256 marketId, uint8 outcome) external",
   
   // Batch open functions
-  "function batchOpenAndResolve(uint256 marketId, uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[9] calldata publicSignals) external",
+  "function batchOpenAndResolve(uint256 marketId, uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[23] calldata publicSignals) external",
   
   // View functions
   "function marketCount() external view returns (uint256)",
