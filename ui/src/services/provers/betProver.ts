@@ -20,7 +20,8 @@ export async function getBetProof(
   nonceKey: bigint,
   encodedSidePoint: [bigint, bigint]
 ): Promise<BetProof> {
-  BigInt.prototype.toJSON = function() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (BigInt as any).prototype.toJSON = function() {
     return this.toString();
   };
   console.log(JSON.stringify({PK, comm, amount, address, salt, side, nonceKey, encodedSidePoint}));
