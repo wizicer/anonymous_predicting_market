@@ -6,7 +6,7 @@ async function main() {
   console.log("Deploying contracts...");
 
   // Deploy mock verifiers for local development
-  const MockBetVerifier = await ethers.getContractFactory("MockBetVerifier");
+  const MockBetVerifier = await ethers.getContractFactory("BetVerifier");
   const betVerifier = await MockBetVerifier.deploy();
   await betVerifier.waitForDeployment();
   const betVerifierAddress = await betVerifier.getAddress();
