@@ -295,8 +295,8 @@ async function genCircomInputsForBet(side: number, salt: string, amount: number,
     const encoded_side_point = genRandomEncodeSidePoint(side);
     // encoded_side_point 是 AffinePoint，需要转换为 ExtPoint 才能传递给 poseidonHashBet
     const encoded_side_point_ext = babyJub.fromAffine({ x: encoded_side_point.x, y: encoded_side_point.y });
-    let encoded_side_point_x = encoded_side_point.x.toString();
-    let encoded_side_point_y = encoded_side_point.y.toString();
+    const encoded_side_point_x = encoded_side_point.x.toString();
+    const encoded_side_point_y = encoded_side_point.y.toString();
     const nonce = BigInt("0x" + uint8ArrayToHex(getRandomBytes(31)));
     const comm = await poseidonHashBet(encoded_side_point_ext, side, salt, amount, address);
     return { encoded_side_point_x, encoded_side_point_y, nonce, comm};
