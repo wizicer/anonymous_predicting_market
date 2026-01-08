@@ -199,8 +199,11 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     minimumCommittee: Number(data.minCommittee),
     requiredCommittee: Number(data.requiredCommittee),
     requiredReputation: Number(data.requiredReputation),
-    publicKey: data.publicKeyX !== '0x0000000000000000000000000000000000000000000000000000000000000000' 
-      ? data.publicKeyX + data.publicKeyY.slice(2) 
+    publicKeyX: data.publicKeyX !== '0x0000000000000000000000000000000000000000000000000000000000000000' 
+      ? data.publicKeyX 
+      : undefined,
+    publicKeyY: data.publicKeyX !== '0x0000000000000000000000000000000000000000000000000000000000000000' 
+      ? data.publicKeyY 
       : undefined,
     salt: data.salt,
     bets,

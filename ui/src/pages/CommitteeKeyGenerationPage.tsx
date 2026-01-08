@@ -21,6 +21,9 @@ import { getEffectiveStatus } from '@/lib/marketStatus';
 
 type LoadingStates = Record<string, boolean>;
 
+// Show public key information in UI
+const SHOW_PUBLIC_KEY_INFO = true;
+
 // DKG state per market
 interface MarketDkgState {
   status: DkgStatus;
@@ -82,7 +85,12 @@ export function CommitteeKeyGenerationPage() {
   // Start DKG process for a market when minimum committee is reached
   const startDkgForMarket = useCallback((market: Market) => {
     if (!address) return;
-    if (dkgCoordinatorsRef.current.has(market.id)) return;
+    
+    // CRITICAL: Prevent duplicate DKG initialization
+    if (dkgCoordinatorsRef.current.has(market.id)) {
+      console.log('[CommitteeKeyGenerationPage] DKG already running for market:', market.id);
+      return;
+    }
     
     // Check if we're a committee member
     const isJoined = market.committee.some(
@@ -331,13 +339,28 @@ export function CommitteeKeyGenerationPage() {
 
                   {/* DKG Status */}
                   {isJoined && isFull && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-muted-foreground">DKG Status:</span>
-                      <span className={dkgStatus.color}>{dkgStatus.text}</span>
-                      {dkgState?.connectedPeers !== undefined && dkgState.connectedPeers > 0 && (
-                        <span className="text-muted-foreground">
-                          ({dkgState.connectedPeers} peers connected)
-                        </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">DKG Status:</span>
+                        <span className={dkgStatus.color}>{dkgStatus.text}</span>
+                        {dkgState?.connectedPeers !== undefined && dkgState.connectedPeers > 0 && (
+                          <span className="text-muted-foreground">
+                            ({dkgState.connectedPeers} peers connected)
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Public Key Display */}
+                      {SHOW_PUBLIC_KEY_INFO && dkgState?.publicKey && (
+                        <div className="text-xs font-mono bg-muted/50 p-2 rounded space-y-1">
+                          <div className="text-muted-foreground font-semibold">Generated Public Key:</div>
+                          <div className="break-all">
+                            <span className="text-blue-400">X:</span> {dkgState.publicKey[0].toString()}
+                          </div>
+                          <div className="break-all">
+                            <span className="text-blue-400">Y:</span> {dkgState.publicKey[1].toString()}
+                          </div>
+                        </div>
                       )}
                     </div>
                   )}

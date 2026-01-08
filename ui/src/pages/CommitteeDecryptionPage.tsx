@@ -12,7 +12,7 @@ import { getAllMarkets, submitKeyShare, batchOpenAndResolve, getAllBets, getComm
 import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 import { decryptFromCircom, babyJub } from '@/services/encryption';
 import { useWallet } from '@/contexts/useWallet';
-import { getEphemeralKey, reconstructSecret, verifyReconstruction, type Point } from '@/services/dkg';
+import { getEphemeralKey, reconstructSecret, mul, verifyReconstruction, type Point } from '@/services/dkg';
 import { getEffectiveStatus } from '@/lib/marketStatus';
 
 type LoadingStates = Record<string, boolean>;
@@ -32,6 +32,19 @@ interface DecryptedBetData {
 // Store decrypted data per market
 type DecryptedDataMap = Record<string, DecryptedBetData[]>;
 
+// Store public key info per market for debugging
+interface PublicKeyInfo {
+  onChainX: bigint;
+  onChainY: bigint;
+  derivedX: bigint;
+  derivedY: bigint;
+  match: boolean;
+}
+type PublicKeyInfoMap = Record<string, PublicKeyInfo>;
+
+
+// Show public key information in UI
+const SHOW_PUBLIC_KEY_INFO = true;
 
 export function CommitteeDecryptionPage() {
   const { address } = useWallet();
@@ -39,6 +52,7 @@ export function CommitteeDecryptionPage() {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [decryptedData, setDecryptedData] = useState<DecryptedDataMap>({});
+  const [publicKeyInfo, setPublicKeyInfo] = useState<PublicKeyInfoMap>({});
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadMarkets = useCallback(async () => {
@@ -123,6 +137,16 @@ export function CommitteeDecryptionPage() {
       return;
     }
 
+    // Get market data to retrieve on-chain public key
+    const market = markets.find(m => m.id === marketId);
+    let onChainPKX: bigint | null = null;
+    let onChainPKY: bigint | null = null;
+    
+    if (market?.publicKeyX && market?.publicKeyY) {
+      onChainPKX = BigInt(market.publicKeyX);
+      onChainPKY = BigInt(market.publicKeyY);
+    }
+
     // Get all committee key shares from on-chain
     const committeeKeys = await getCommitteeKeys(BigInt(marketId));
     
@@ -145,6 +169,24 @@ export function CommitteeDecryptionPage() {
     // This computes f(0) from the submitted shares
     const reconstructedSecret = reconstructSecret(shares);
     console.log('[CommitteeDecryptionPage] Reconstructed secret from', shares.length, 'shares');
+    
+    // Verify reconstructed secret by deriving public key
+    const derivedPublicKey = mul(reconstructedSecret);
+    
+    // Store public key info for UI display
+    if (onChainPKX && onChainPKY) {
+      const match = onChainPKX === derivedPublicKey[0] && onChainPKY === derivedPublicKey[1];
+      setPublicKeyInfo(prev => ({
+        ...prev,
+        [marketId]: {
+          onChainX: onChainPKX,
+          onChainY: onChainPKY,
+          derivedX: derivedPublicKey[0],
+          derivedY: derivedPublicKey[1],
+          match,
+        },
+      }));
+    }
 
     
 
@@ -373,6 +415,26 @@ export function CommitteeDecryptionPage() {
                       </p>
                     )}
                   </div>
+
+                  {/* Public Key Verification */}
+                  {SHOW_PUBLIC_KEY_INFO && publicKeyInfo[market.id] && (
+                    <div className="text-xs font-mono bg-muted/50 p-3 rounded space-y-2">
+                      <div className="font-semibold text-muted-foreground">Public Key Verification:</div>
+                      <div className="space-y-1">
+                        <div className="text-yellow-400">On-chain PK (used for encryption):</div>
+                        <div className="break-all pl-2">X: {publicKeyInfo[market.id].onChainX.toString()}</div>
+                        <div className="break-all pl-2">Y: {publicKeyInfo[market.id].onChainY.toString()}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-blue-400">Derived PK (from reconstructed secret):</div>
+                        <div className="break-all pl-2">X: {publicKeyInfo[market.id].derivedX.toString()}</div>
+                        <div className="break-all pl-2">Y: {publicKeyInfo[market.id].derivedY.toString()}</div>
+                      </div>
+                      <div className={`font-semibold ${publicKeyInfo[market.id].match ? 'text-green-400' : 'text-red-400'}`}>
+                        {publicKeyInfo[market.id].match ? '✓ Keys Match' : '✗ Keys DO NOT Match - Decryption will fail!'}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Three-step workflow */}
                   <div className="grid grid-cols-3 gap-2">

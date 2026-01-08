@@ -104,10 +104,9 @@ export function MarketDetailPage() {
       const comm = inputs.comm;
 
       // generate proof
-      const marketPK = market.publicKey;
       const marketPKArray: [bigint, bigint] = [
-        BigInt('0x' + (marketPK?.slice(2, 66) ?? '0')),
-        BigInt('0x' + (marketPK?.slice(66, 130) ?? '0'))
+        BigInt(market.publicKeyX ?? '0x0'),
+        BigInt(market.publicKeyY ?? '0x0')
       ];
       const proof = await getBetProof(
         marketPKArray,
@@ -119,6 +118,7 @@ export function MarketDetailPage() {
         nonceKey,
         encodedSidePoint
       );
+
       // Convert commitment to bytes32
       const commitment = '0x' + comm.toString(16).padStart(64, '0');
       
