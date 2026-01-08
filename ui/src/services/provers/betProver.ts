@@ -52,6 +52,6 @@ export async function getBetProof(
     a: eep[0],
     b: eep[1],
     c: eep[2],
-    publicSignals: eep[3].map((s: string) => BigInt(s)),
+    publicSignals: eep[3],
   };
 }

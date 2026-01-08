@@ -126,19 +126,6 @@ export function MarketDetailPage() {
       // Note: uint256 fits in bytes32, so we just pad to 64 hex characters
       const cypherText: [string, string] = [proof.encryptedMessage[0].toString(16).padStart(64, '0'), proof.encryptedMessage[1].toString(16).padStart(64, '0')];
       
-      const publicSignals = [
-        proof.publicSignals[4], // PK[0]
-        proof.publicSignals[5], // PK[1]
-        proof.publicSignals[6], // comm
-        proof.publicSignals[7], // amount
-        proof.publicSignals[8], // address
-        proof.publicSignals[9], // salt
-        proof.publicSignals[0], // encryptedMessage[0]
-        proof.publicSignals[1], // encryptedMessage[1]
-        proof.publicSignals[2], // ephemeralKey[0]
-        proof.publicSignals[3], // ephemeralKey[1]
-      ];   
-      
       await placeEncryptedBet(
         BigInt(id!),
         commitment,
@@ -146,7 +133,7 @@ export function MarketDetailPage() {
         proof.a,
         proof.b,
         proof.c,
-        publicSignals,
+        proof.publicSignals,
         betAmount
       );
       
