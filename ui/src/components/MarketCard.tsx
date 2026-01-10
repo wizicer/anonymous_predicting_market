@@ -34,20 +34,31 @@ export function MarketCard({ market }: MarketCardProps) {
           {/* Probability / Encrypted indicator */}
           {isResolved ? (
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-green-400 font-medium">YES {market.yesPercentage}%</span>
-                <span className="text-red-400 font-medium">NO {market.noPercentage}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-muted overflow-hidden flex">
-                <div 
-                  className="bg-green-500 transition-all" 
-                  style={{ width: `${market.yesPercentage}%` }} 
-                />
-                <div 
-                  className="bg-red-500 transition-all" 
-                  style={{ width: `${market.noPercentage}%` }} 
-                />
-              </div>
+              {(() => {
+                const sum0 = market.sum0 || 0n;
+                const sum1 = market.sum1 || 0n;
+                const total = sum0 + sum1;
+                const yesPercentage = total > 0n ? Math.round(Number((sum1 * 10000n) / total) / 100) : 0;
+                const noPercentage = total > 0n ? Math.round(Number((sum0 * 10000n) / total) / 100) : 0;
+                return (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-green-400 font-medium">YES {yesPercentage}%</span>
+                      <span className="text-red-400 font-medium">NO {noPercentage}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted overflow-hidden flex">
+                      <div 
+                        className="bg-green-500 transition-all" 
+                        style={{ width: `${yesPercentage}%` }} 
+                      />
+                      <div 
+                        className="bg-red-500 transition-all" 
+                        style={{ width: `${noPercentage}%` }} 
+                      />
+                    </div>
+                  </>
+                );
+              })()}
               <div className="flex items-center justify-center gap-2 py-1">
                 <span className={`text-sm font-bold ${market.outcome === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
                   Outcome: {market.outcome?.toUpperCase()}
