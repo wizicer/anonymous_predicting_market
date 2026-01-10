@@ -22,7 +22,7 @@ import { getEffectiveStatus } from '@/lib/marketStatus';
 type LoadingStates = Record<string, boolean>;
 
 // Show public key information in UI
-const SHOW_PUBLIC_KEY_INFO = true;
+const SHOW_PUBLIC_KEY_INFO = false;
 
 // DKG state per market
 interface MarketDkgState {

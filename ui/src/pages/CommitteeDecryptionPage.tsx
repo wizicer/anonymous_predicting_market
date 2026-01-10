@@ -44,7 +44,7 @@ type PublicKeyInfoMap = Record<string, PublicKeyInfo>;
 
 
 // Show public key information in UI
-const SHOW_PUBLIC_KEY_INFO = true;
+const SHOW_PUBLIC_KEY_INFO = false;
 
 export function CommitteeDecryptionPage() {
   const { address } = useWallet();
@@ -433,6 +433,18 @@ export function CommitteeDecryptionPage() {
                       </div>
                       <div className={`font-semibold ${publicKeyInfo[market.id].match ? 'text-green-400' : 'text-red-400'}`}>
                         {publicKeyInfo[market.id].match ? '✓ Keys Match' : '✗ Keys DO NOT Match - Decryption will fail!'}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Key Mismatch Warning - Always show if keys don't match */}
+                  {!SHOW_PUBLIC_KEY_INFO && publicKeyInfo[market.id] && !publicKeyInfo[market.id].match && (
+                    <div className="text-xs bg-red-500/10 border border-red-500/30 p-3 rounded">
+                      <div className="font-semibold text-red-400">
+                        ⚠️ Key Mismatch Detected - Decryption will fail!
+                      </div>
+                      <div className="text-red-300 mt-1">
+                        The reconstructed secret doesn't match the on-chain public key. This will cause decryption failures.
                       </div>
                     </div>
                   )}
