@@ -12,7 +12,7 @@ import { getAllMarkets, submitKeyShare, batchOpenAndResolve, getAllBets, getComm
 import { getBatchOpenProof } from '@/services/provers/batchOpenProver';
 import { decryptFromCircom, babyJub } from '@/services/encryption';
 import { useWallet } from '@/contexts/useWallet';
-import { getEphemeralKey, reconstructSecret, mul, verifyReconstruction, type Point } from '@/services/dkg';
+import { getEphemeralKey, reconstructSecret, mul } from '@/services/dkg';
 import { getEffectiveStatus } from '@/lib/marketStatus';
 
 type LoadingStates = Record<string, boolean>;
@@ -253,7 +253,6 @@ export function CommitteeDecryptionPage() {
     }
 
     // Prepare inputs for batch open proof
-    const N = BigInt(bets.length);
     const comm = bets.map(b => BigInt(b.commitment));
     const amount = bets.map(b => b.amount);
     const market = markets.find(m => m.id === marketId);
