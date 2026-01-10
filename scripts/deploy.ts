@@ -5,7 +5,7 @@ import * as path from "path";
 async function main() {
   console.log("Deploying contracts...");
 
-  // Deploy mock verifiers for local development
+  // Deploy verifiers for local development
   const BetVerifier = await ethers.getContractFactory("BetVerifier");
   const betVerifier = await BetVerifier.deploy();
   await betVerifier.waitForDeployment();
@@ -16,7 +16,7 @@ async function main() {
   const batchOpenVerifier = await BatchOpenVerifier.deploy();
   await batchOpenVerifier.waitForDeployment();
   const batchOpenVerifierAddress = await batchOpenVerifier.getAddress();
-  console.log("MockBatchOpenVerifier deployed to:", batchOpenVerifierAddress);
+  console.log("BatchOpenVerifier deployed to:", batchOpenVerifierAddress);
 
   // Deploy main contract
   const AnonymousPredictionMarket = await ethers.getContractFactory("AnonymousPredictionMarket");

@@ -73,13 +73,13 @@ export function DeployPage() {
     },
     {
       id: 2,
-      title: 'Deploy MockBetVerifier',
+      title: 'Deploy BetVerifier',
       description: 'Deploy the bet verification contract',
       status: 'pending',
     },
     {
       id: 3,
-      title: 'Deploy MockBatchOpenVerifier',
+      title: 'Deploy BatchOpenVerifier',
       description: 'Deploy the batch open verification contract',
       status: 'pending',
     },
@@ -150,14 +150,14 @@ export function DeployPage() {
     };
 
     try {
-      // Step 2: Deploy MockBetVerifier
+      // Step 2: Deploy BetVerifier
       if (!deployment.betVerifier) {
         updateStep(2, { status: 'in_progress' });
-        toast.info('Deploying MockBetVerifier...');
+        toast.info('Deploying BetVerifier...');
 
         const betVerifierFactory = new ContractFactory(
-          deploymentArtifacts.MockBetVerifier.abi,
-          deploymentArtifacts.MockBetVerifier.bytecode,
+          deploymentArtifacts.BetVerifier.abi,
+          deploymentArtifacts.BetVerifier.bytecode,
           signer
         );
         const betVerifier = await betVerifierFactory.deploy();
@@ -177,17 +177,17 @@ export function DeployPage() {
         saveDeployment({ ...newDeployment });
         
         updateStep(2, { status: 'completed', address: betVerifierAddress, txHash: betVerifierTx?.hash });
-        toast.success(`MockBetVerifier deployed: ${betVerifierAddress.slice(0, 10)}...`);
+        toast.success(`BetVerifier deployed: ${betVerifierAddress.slice(0, 10)}...`);
       }
 
-      // Step 3: Deploy MockBatchOpenVerifier
+      // Step 3: Deploy BatchOpenVerifier
       if (!deployment.batchOpenVerifier) {
         updateStep(3, { status: 'in_progress' });
-        toast.info('Deploying MockBatchOpenVerifier...');
+        toast.info('Deploying BatchOpenVerifier...');
 
         const batchOpenVerifierFactory = new ContractFactory(
-          deploymentArtifacts.MockBatchOpenVerifier.abi,
-          deploymentArtifacts.MockBatchOpenVerifier.bytecode,
+          deploymentArtifacts.BatchOpenVerifier.abi,
+          deploymentArtifacts.BatchOpenVerifier.bytecode,
           signer
         );
         const batchOpenVerifier = await batchOpenVerifierFactory.deploy();
@@ -207,7 +207,7 @@ export function DeployPage() {
         saveDeployment({ ...newDeployment });
         
         updateStep(3, { status: 'completed', address: batchOpenVerifierAddress, txHash: batchOpenVerifierTx?.hash });
-        toast.success(`MockBatchOpenVerifier deployed: ${batchOpenVerifierAddress.slice(0, 10)}...`);
+        toast.success(`BatchOpenVerifier deployed: ${batchOpenVerifierAddress.slice(0, 10)}...`);
       }
 
       // Step 4: Deploy AnonymousPredictionMarket
@@ -312,22 +312,6 @@ export function DeployPage() {
           Deploy the Anonymous Prediction Market contracts to the blockchain
         </p>
       </div>
-
-      {/* Warning Banner */}
-      <Card className="border-yellow-500/50 bg-yellow-500/10">
-        <CardContent className="pt-4">
-          <div className="flex gap-3">
-            <AlertCircle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-medium text-yellow-500">Important</p>
-              <p className="text-muted-foreground">
-                This page deploys mock verifier contracts for development/testing. 
-                For production, deploy the real ZK verifier contracts generated from circuits.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Steps */}
       <Card>

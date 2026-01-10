@@ -18,19 +18,19 @@ function main() {
 
   try {
     // Read contract artifacts
-    const mockBetVerifier = readArtifact('MockVerifiers.sol/MockBetVerifier.json');
-    const mockBatchOpenVerifier = readArtifact('MockVerifiers.sol/MockBatchOpenVerifier.json');
+    const betVerifier = readArtifact('generated/BetVerifier.sol/BetVerifier.json');
+    const batchOpenVerifier = readArtifact('generated/BatchOpenVerifier.sol/BatchOpenVerifier.json');
     const anonymousPredictionMarket = readArtifact('prediction.sol/AnonymousPredictionMarket.json');
 
     // Create output object with only necessary data
     const output = {
-      MockBetVerifier: {
-        abi: mockBetVerifier.abi,
-        bytecode: mockBetVerifier.bytecode
+      BetVerifier: {
+        abi: betVerifier.abi,
+        bytecode: betVerifier.bytecode
       },
-      MockBatchOpenVerifier: {
-        abi: mockBatchOpenVerifier.abi,
-        bytecode: mockBatchOpenVerifier.bytecode
+      BatchOpenVerifier: {
+        abi: batchOpenVerifier.abi,
+        bytecode: batchOpenVerifier.bytecode
       },
       AnonymousPredictionMarket: {
         abi: anonymousPredictionMarket.abi,
@@ -49,7 +49,7 @@ function main() {
     
     console.log('✓ Deployment artifacts generated successfully!');
     console.log(`  Output: ${OUTPUT_FILE}`);
-    console.log(`  Contracts: MockBetVerifier, MockBatchOpenVerifier, AnonymousPredictionMarket`);
+    console.log(`  Contracts: BetVerifier, BatchOpenVerifier, AnonymousPredictionMarket`);
   } catch (error) {
     console.error('✗ Failed to generate deployment artifacts:');
     console.error(error.message);
