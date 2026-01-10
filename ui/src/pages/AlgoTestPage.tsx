@@ -10,7 +10,6 @@ import {
   computeFinalShare,
   reconstructSecret,
   verifyReconstruction,
-  type Point,
   type DkgPolynomial,
 } from '@/services/dkg';
 import { getBetProof } from '@/services/provers/betProver';
@@ -22,27 +21,6 @@ interface StepResult {
   data?: Record<string, unknown>;
 }
 
-interface TestState {
-  // DKG state
-  dkgPolynomials: DkgPolynomial[];
-  dkgShares: bigint[][];
-  dkgFinalShares: bigint[];
-  dkgPublicKey: Point | null;
-  
-  // Encryption state
-  side: number;
-  encodedSidePoint: [bigint, bigint] | null;
-  commitment: bigint | null;
-  cypherTextX: bigint | null;
-  cypherTextY: bigint | null;
-  ephemeralKeyX: bigint | null;
-  ephemeralKeyY: bigint | null;
-  
-  // Decryption state
-  reconstructedSecret: bigint | null;
-  decryptedPoint: { x: bigint; y: bigint } | null;
-  decryptedSide: number | null;
-}
 
 const THRESHOLD = 2; // t = 2 (minimum parties needed to decrypt)
 const NUM_PARTIES = 3; // n = 3 parties
@@ -51,23 +29,6 @@ export function AlgoTestPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [currentStep, setCurrentStep] = useState<string>('');
   const [results, setResults] = useState<StepResult[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [testState, setTestState] = useState<TestState>({
-    dkgPolynomials: [],
-    dkgShares: [],
-    dkgFinalShares: [],
-    dkgPublicKey: null,
-    side: 1, // YES bet
-    encodedSidePoint: null,
-    commitment: null,
-    cypherTextX: null,
-    cypherTextY: null,
-    ephemeralKeyX: null,
-    ephemeralKeyY: null,
-    reconstructedSecret: null,
-    decryptedPoint: null,
-    decryptedSide: null,
-  });
 
   const addResult = (result: StepResult) => {
     setResults(prev => [...prev, result]);
@@ -75,22 +36,6 @@ export function AlgoTestPage() {
 
   const resetTest = () => {
     setResults([]);
-    setTestState({
-      dkgPolynomials: [],
-      dkgShares: [],
-      dkgFinalShares: [],
-      dkgPublicKey: null,
-      side: 1,
-      encodedSidePoint: null,
-      commitment: null,
-      cypherTextX: null,
-      cypherTextY: null,
-      ephemeralKeyX: null,
-      ephemeralKeyY: null,
-      reconstructedSecret: null,
-      decryptedPoint: null,
-      decryptedSide: null,
-    });
   };
 
   const runFullTest = async () => {
@@ -186,15 +131,7 @@ export function AlgoTestPage() {
         },
       });
 
-      // Update state
-      setTestState(prev => ({
-        ...prev,
-        dkgPolynomials: polynomials,
-        dkgShares: shares,
-        dkgFinalShares: finalShares,
-        dkgPublicKey: publicKey,
-      }));
-
+      
       // ==================== Step 5: Generate Bet Inputs ====================
       setCurrentStep('Encryption: Generating bet inputs...');
       
@@ -261,18 +198,7 @@ export function AlgoTestPage() {
         },
       });
 
-      // Update state
-      setTestState(prev => ({
-        ...prev,
-        side,
-        encodedSidePoint,
-        commitment: inputs.comm,
-        cypherTextX,
-        cypherTextY,
-        ephemeralKeyX,
-        ephemeralKeyY,
-      }));
-
+      
       // ==================== Step 7: Reconstruct Secret ====================
       setCurrentStep('Decryption: Reconstructing secret from shares...');
       
@@ -322,14 +248,7 @@ export function AlgoTestPage() {
         },
       });
 
-      // Update state
-      setTestState(prev => ({
-        ...prev,
-        reconstructedSecret,
-        decryptedPoint,
-        decryptedSide,
-      }));
-
+      
       // ==================== Step 9: Verify ====================
       setCurrentStep('Verification: Comparing original and decrypted values...');
       
