@@ -71,6 +71,9 @@ contract AnonymousPredictionMarket {
 
         Outcome outcome;
         uint256 oracleSubmittedAt;
+        
+        uint256 sum0; // Total NO votes
+        uint256 sum1; // Total YES votes
     }
 
     Market[] public markets;
@@ -217,6 +220,9 @@ contract AnonymousPredictionMarket {
         bool ok = batchOpenVerifier.verifyProof(a, b, c, publicSignals);
         require(ok, "invalid batch open proof");
 
+        m.sum0 = publicSignals[0];
+        m.sum1 = publicSignals[1];
+        
         m.status = MarketStatus.Resolved;
     }
 

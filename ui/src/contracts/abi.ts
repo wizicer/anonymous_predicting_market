@@ -24,7 +24,7 @@ export const PREDICTION_MARKET_ABI = [
   
   // View functions
   "function marketCount() external view returns (uint256)",
-  "function markets(uint256) external view returns (string question, string description, uint256 salt, uint8 status, uint256 expiresAt, uint8 minCommittee, uint8 requiredCommittee, uint8 requiredReputation, uint32 betCount, bytes32 publicKeyX, bytes32 publicKeyY, bytes32 publicKeyCommitment, uint8 outcome, uint256 oracleSubmittedAt)",
+  "function markets(uint256) external view returns (string question, string description, uint256 salt, uint8 status, uint256 expiresAt, uint8 minCommittee, uint8 requiredCommittee, uint8 requiredReputation, uint32 betCount, bytes32 publicKeyX, bytes32 publicKeyY, bytes32 publicKeyCommitment, uint8 outcome, uint256 oracleSubmittedAt, uint256 sum0, uint256 sum1)",
   "function getCommittee(uint256 marketId) external view returns (address[])",
   "function getCommitteeCommitment(uint256 marketId, address member) external view returns (uint256)",
   "function getCommitteeKey(uint256 marketId, address member) external view returns (uint256)",

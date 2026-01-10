@@ -181,14 +181,25 @@ export function MarketDetailPage() {
             <CardContent>
               {isResolved ? (
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-green-400 font-medium">YES {market.yesPercentage}%</span>
-                    <span className="text-red-400 font-medium">NO {market.noPercentage}%</span>
-                  </div>
-                  <div className="h-4 rounded-full bg-muted overflow-hidden flex">
-                    <div className="bg-green-500" style={{ width: `${market.yesPercentage}%` }} />
-                    <div className="bg-red-500" style={{ width: `${market.noPercentage}%` }} />
-                  </div>
+                  {(() => {
+                    const sum0 = market.sum0 || 0n;
+                    const sum1 = market.sum1 || 0n;
+                    const total = sum0 + sum1;
+                    const yesPercentage = total > 0n ? Math.round(Number((sum1 * 10000n) / total) / 100) : 0;
+                    const noPercentage = total > 0n ? Math.round(Number((sum0 * 10000n) / total) / 100) : 0;
+                    return (
+                      <>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span className="text-green-400 font-medium">YES {yesPercentage}%</span>
+                          <span className="text-red-400 font-medium">NO {noPercentage}%</span>
+                        </div>
+                        <div className="h-4 rounded-full bg-muted overflow-hidden flex">
+                          <div className="bg-green-500" style={{ width: `${yesPercentage}%` }} />
+                          <div className="bg-red-500" style={{ width: `${noPercentage}%` }} />
+                        </div>
+                      </>
+                    );
+                  })()}
                   <div className="flex items-center justify-center gap-2 py-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
                     {market.outcome === 'yes' ? (
                       <CheckCircle className="h-6 w-6 text-green-400" />

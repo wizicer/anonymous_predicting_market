@@ -156,6 +156,8 @@ interface RawMarketData {
   publicKeyCommitment: string;
   outcome: bigint;             // enum returned as bigint
   oracleSubmittedAt: bigint;
+  sum0: bigint;                // Total NO votes
+  sum1: bigint;                // Total YES votes
 }
 
 export async function getMarket(marketId: bigint): Promise<Market> {
@@ -191,8 +193,8 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     createdAt: new Date(), // Not stored on-chain
     resolvedAt: status === 'resolved' ? new Date() : undefined,
     outcome,
-    yesPercentage: 0, // Calculated after resolution
-    noPercentage: 0,
+    sum0: data.sum0,
+    sum1: data.sum1,
     totalVolume,
     totalBets: Number(data.betCount),
     committee,

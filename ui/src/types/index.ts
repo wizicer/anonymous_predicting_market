@@ -34,8 +34,6 @@ export interface Market {
   createdAt: Date;
   resolvedAt?: Date;
   outcome?: BetPosition;
-  yesPercentage: number;
-  noPercentage: number;
   totalVolume: number;
   totalBets: number;
   committee: CommitteeMember[];
@@ -45,6 +43,8 @@ export interface Market {
   publicKeyX?: string;
   publicKeyY?: string;
   salt?: bigint;
+  sum0?: bigint; // Total NO votes from batch open proof
+  sum1?: bigint; // Total YES votes from batch open proof
   bets: EncryptedBet[];
 }
 
