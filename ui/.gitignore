@@ -26,3 +26,4 @@ dist-ssr
 src/typechain
 src/contracts/artifacts.json
 public/circuits
+src/contracts/deployment.json
