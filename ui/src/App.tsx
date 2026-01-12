@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { Header } from '@/components/Header';
@@ -24,7 +24,7 @@ function App() {
 
   return (
     <WalletProvider>
-      <BrowserRouter>
+      <HashRouter>
         <div className="min-h-screen bg-background text-foreground">
           <Header />
           <main className="container mx-auto px-4 py-8">
@@ -46,7 +46,7 @@ function App() {
             className: 'bg-card border-border',
           }}
         />
-      </BrowserRouter>
+      </HashRouter>
     </WalletProvider>
   );
 }
