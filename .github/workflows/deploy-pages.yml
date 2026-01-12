@@ -30,12 +30,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download circuits from latest release
+      - name: Download archive from latest release
         uses: robinraju/release-downloader@v1
         with:
           latest: true
-          fileName: 'circuits.zip'
-          out-file-path: 'ui/public'
+          fileName: 'archive.zip'
+          out-file-path: '.'
           extract: true
           token: ${{ secrets.GITHUB_TOKEN }}
 

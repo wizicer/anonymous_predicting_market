@@ -22,7 +22,7 @@
     "chain:node": "hardhat node",
     "chain": "concurrently \"npm run chain:node\" \"npm run chain:deploy\"",
     "chain:deploy": "hardhat run scripts/deploy.ts --network localhost",
-    "zip:circuits": "cd ui/public && zip -r ../../circuits.zip circuits"
+    "zip": "zip -r archive.zip ui/src/contracts/deployment.json contracts/generated/ ui/public/circuits/"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
