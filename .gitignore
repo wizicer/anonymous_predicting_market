@@ -3,7 +3,7 @@ node_modules
 cache
 artifacts
 *_obj/
-src/generated/
+contracts/generated/
 obj/
 .env
 *_temp_*
