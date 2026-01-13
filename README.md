@@ -51,6 +51,30 @@ Our model aligns incentives to sustain a decentralized, private market:
 - **Contract Address:** [0xd6a0485F847f93263808cA0b0c2C0F4Ca9E19a3a](https://sepolia.mantlescan.xyz/address/0xd6a0485F847f93263808cA0b0c2C0F4Ca9E19a3a#code) on Mantle Sepolia
 - **Frontend:** [https://wizicer.github.io/anonymous_predicting_market/](https://wizicer.github.io/anonymous_predicting_market/)
 
+## Technical Protocol
+
+The Anonymous Prediction Market operates through three main phases:
+
+### 1. Committee Setup
+- A decentralized committee of `n` members with threshold `t` performs Distributed Key Generation (DKG)
+- Generates shared private key `sk` and public key `pk` where `pk = g^sk`
+- At least `t` members must collaborate to recover the private key for decryption
+
+### 2. Betting Phase
+- Users encode betting direction into elliptic curve point parity: `side_i = (m_i.X mod 2)`
+- Generate ElGamal threshold encryption: `ct_i = (v_i, e_i)` where `v_i = g^β_i, e_i = m_i + pk^β_i`
+- Create Poseidon commitment: `comm_i = Poseidon(m_i || side_i || salt || amount_i || address_i)`
+- Generate ZK proof proving bet validity without revealing direction
+- Submit `(address_i, amount_i, ct_i, comm_i, π_i)` on-chain
+
+### 3. Batch Opening Phase
+- Committee decrypts all bets off-chain using recovered private key
+- Generate batch ZK proof for all decrypted bets
+- Submit aggregated amounts `(sum_0, sum_1)` and batch proof on-chain
+- Oracle provides winning direction for settlement and reward distribution
+
+**For detailed mathematical specifications and cryptographic proofs, see the [complete protocol documentation](docs/protocol.md).**
+
 ## Development Setup
 
 ### Prerequisites
