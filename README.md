@@ -91,9 +91,9 @@ The project uses GitHub Actions for automatic deployment to GitHub Pages.
 1. On push to `main` branch, the workflow:
    - Downloads `archive.zip` from the latest GitHub release
    - Extracts files to original positions:
-     - `ui/src/contracts/deployment.json`
-     - `contracts/generated/`
-     - `ui/public/circuits/`
+     - `ui/src/contracts/deployment.json` (deployment addresses)
+     - `contracts/generated/` (generated verifier contracts)
+     - `ui/public/circuits/` (circuit WASM, ZKEY, and verification keys)
    - Builds contracts and UI
    - Deploys to GitHub Pages
 
@@ -110,10 +110,10 @@ Circuit files are large and cannot be stored in the git repository. They are dis
    npm run build:circuits
    ```
 
-2. Copy circuit outputs to `ui/public/circuits/`:
-   - `.wasm` files (WebAssembly circuits)
-   - `.zkey` files (proving keys)
-   - `verification_key.json` files
+2. Deploy contracts to generate deployment.json:
+   ```bash
+   npm run chain:deploy
+   ```
 
 3. Create the archive zip:
    ```bash
@@ -133,23 +133,38 @@ When circuit code changes, maintainers need to:
 
 2. **Update the circuit files in `ui/public/circuits/`**
 
-3. **Create new zip:**
+3. **Redeploy contracts (if needed):**
+   ```bash
+   npm run chain:deploy
+   ```
+
+4. **Create new zip:**
    ```bash
    npm run zip
    ```
 
-4. **Create a new GitHub Release:**
+5. **Create a new GitHub Release:**
    - Go to repository → Releases → "Create a new release"
    - Create a new tag (e.g., `v1.0.1` or `circuits-v2`)
    - Upload `archive.zip` as a release asset
    - Publish the release
 
-5. **Trigger deployment:**
+6. **Trigger deployment:**
    - Push to `main` branch, or
    - Manually run the workflow from Actions tab
 
 The GitHub Actions workflow will automatically download `archive.zip` from the latest release during deployment.
 
+### Local Development Note
+
+For local development, you don't need the archive zip. Simply:
+1. Run `npm run build:circuits` to generate circuits
+2. Run `npm run chain:deploy` to deploy contracts locally
+3. Run `npm run dev:ui` to start the UI
+
+The archive zip is only needed for GitHub Pages deployment where generated files are not stored in git.
+
 ### Hidden Pages
 
 - `/deploy` - Contract deployment page (accessible via URL only, no navigation link)
+- `/algo` - Algorithm test page for encryption/decryption debugging (accessible via URL only, no navigation link)
