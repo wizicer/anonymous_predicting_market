@@ -1,6 +1,50 @@
 # Anonymous Prediction Market
 
-A prediction market with encrypted bets using threshold encryption and zero-knowledge proofs.
+A "dark" prediction market with encrypted bets using threshold encryption and zero-knowledge proofs, preventing copy-trading and front-running.
+
+## The Problem
+
+Current blockchain prediction markets (like Polymarket) suffer from radical transparency. Since all bets are visible on-chain, large traders ("whales") are easily tracked, leading to copy-trading, front-running, and game-theoretic manipulation before an event settles.
+
+## Our Solution
+
+We built a **"Dark" Prediction Market** where users can wager on outcomes without revealing their positions to anyone—not even the validators—until the betting phase is over.
+
+## Key Innovations & Technology
+
+- **First Practical "Dark Market" MVP:** We present the first functional prototype of an **Anonymous Prediction Market**. Unlike existing platforms (e.g., Polymarket), our system keeps all betting positions completely hidden until the event concludes, effectively preventing copy-trading and front-running strategies.
+
+- **Browser-Native P2P DKG:** We implemented a secure **Distributed Key Generation (DKG)** protocol purely in the browser. By leveraging **WebRTC**, committee members establish direct Peer-to-Peer connections to securely generate and fragment keys without relying on centralized coordination servers.
+
+- **Ephemeral Keys for Async Decryption:** We utilize **ephemeral private keys** to significantly simplify the decryption workflow. This design removes the requirement for all committee members to be online simultaneously for multi-round interactive decryption, allowing for flexible and robust off-chain key recovery.
+
+- **Novel Privacy Encoding:** We do not simply encrypt a "Yes/No" boolean. Instead, we encode the betting direction into the **parity** (odd/even nature) of a random elliptic curve point. This ensures the ciphertext looks mathematically indistinguishable from random noise.
+
+- **Zero-Knowledge Betting:** Users generate a **ZK-Bet Proof** locally (using SnarkJS). This proves the bet is valid and backed by funds without disclosing the direction, ensuring total privacy.
+
+- **Threshold Security:** A decentralized committee performs Distributed Key Generation (DKG). The private key is fragmented, so no single entity can decrypt the market prematurely.
+
+- **Gas-Efficient Settlement:** Instead of expensive on-chain decryption for every bet, the committee decrypts off-chain and submits a single **Batch Opening Proof** to verify the aggregate results and payouts, significantly reducing gas costs.
+
+## Business Model
+
+Our model aligns incentives to sustain a decentralized, private market:
+
+- **Protocol Fees (Revenue):** We charge a small percentage fee on the winning pot upon settlement. Users are essentially paying a "privacy premium" for copy-trading protection and MEV resistance.
+
+- **Committee Incentives (Cost):** A portion of these fees is automatically distributed to committee members. This incentivizes honest participation in key generation and ensures timely off-chain decryption.
+
+## Roadmap
+
+- **Phase 1: MVP (Completed ✅)** We have successfully deployed the core privacy loop, including `PredictionMarket.sol`, functional ZK circuits (`ZK-Bet`, `Batch-Open`), and a React frontend with client-side proving.
+
+- **Phase 2: Decentralization & Variety (Next Step)** We will implement a decentralized Oracle mechanism to ensure trustless resolution and enrich prediction options to support diverse market types.
+
+- **Phase 3: Advanced Features (Future)** We plan to upgrade to Non-Interactive DKG to minimize coordination friction and enable support for complex reward curves for more sophisticated market dynamics.
+
+## Compliance Declaration
+
+**No / Not Applicable.** The Anonymous Prediction Market is a **decentralized protocol** designed to facilitate privacy-preserving information discovery.
 
 ## Development Setup
 
