@@ -46,6 +46,11 @@ Our model aligns incentives to sustain a decentralized, private market:
 
 **No / Not Applicable.** The Anonymous Prediction Market is a **decentralized protocol** designed to facilitate privacy-preserving information discovery.
 
+## Live Demo
+
+- **Contract Address:** [0xd6a0485F847f93263808cA0b0c2C0F4Ca9E19a3a](https://sepolia.mantlescan.xyz/address/0xd6a0485F847f93263808cA0b0c2C0F4Ca9E19a3a#code) on Mantle Sepolia
+- **Frontend:** [https://wizicer.github.io/anonymous_predicting_market/](https://wizicer.github.io/anonymous_predicting_market/)
+
 ## Development Setup
 
 ### Prerequisites
