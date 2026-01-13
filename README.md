@@ -54,7 +54,7 @@ cd ui && npm install
 | `npm run build:ui` | Build the UI |
 | `npm run build` | Full build (compile + artifacts + UI) |
 | `npm run dev:ui` | Start UI dev server |
-| `npm run zip:circuits` | Create circuits.zip from ui/public/circuits |
+| `npm run zip` | Create archive.zip with circuits, contracts, and deployment files |
 
 ### Project Structure
 
@@ -89,12 +89,15 @@ The project uses GitHub Actions for automatic deployment to GitHub Pages.
 ### How it works
 
 1. On push to `main` branch, the workflow:
-   - Downloads `circuits.zip` from the latest GitHub release
-   - Extracts circuits to `ui/public/circuits`
+   - Downloads `archive.zip` from the latest GitHub release
+   - Extracts files to original positions:
+     - `ui/src/contracts/deployment.json`
+     - `contracts/generated/`
+     - `ui/public/circuits/`
    - Builds contracts and UI
    - Deploys to GitHub Pages
 
-2. A 404 redirect trick enables SPA routing (page refresh works on all routes)
+2. Uses HashRouter for client-side routing (works on static hosting)
 
 ### Managing Circuits Files
 
@@ -112,12 +115,12 @@ Circuit files are large and cannot be stored in the git repository. They are dis
    - `.zkey` files (proving keys)
    - `verification_key.json` files
 
-3. Create the circuits zip:
+3. Create the archive zip:
    ```bash
-   npm run zip:circuits
+   npm run zip
    ```
 
-4. Create a GitHub Release and upload `circuits.zip` as a release asset
+4. Create a GitHub Release and upload `archive.zip` as a release asset
 
 #### Updating Circuits
 
@@ -132,20 +135,20 @@ When circuit code changes, maintainers need to:
 
 3. **Create new zip:**
    ```bash
-   npm run zip:circuits
+   npm run zip
    ```
 
 4. **Create a new GitHub Release:**
    - Go to repository → Releases → "Create a new release"
    - Create a new tag (e.g., `v1.0.1` or `circuits-v2`)
-   - Upload `circuits.zip` as a release asset
+   - Upload `archive.zip` as a release asset
    - Publish the release
 
 5. **Trigger deployment:**
    - Push to `main` branch, or
    - Manually run the workflow from Actions tab
 
-The GitHub Actions workflow will automatically download `circuits.zip` from the latest release during deployment.
+The GitHub Actions workflow will automatically download `archive.zip` from the latest release during deployment.
 
 ### Hidden Pages
 
