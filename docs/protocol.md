@@ -58,10 +58,16 @@ Off-chain computation:
 - For $i = 1, \ldots, M$, compute $(side_i, m_i) \leftarrow Dec(sk, ct_i)$: Perform decryption.
 	- Through $ct_i = (v_i, e_i)$ and private key $sk$, compute the encrypted plaintext $m_i$: $m_i \leftarrow e_i - v_i^{sk}$
 	- Compute $side_i$: $side_i \leftarrow (m_i.X \mod 2)$
-- $$(\pi_{batch}, sum_0, sum_1 ) \leftarrow BatchProve(salt, \\{(comm_i, ammount_i) \\}_{i = 1}^M; \\{side_i,address_i, m_i \\}_{i = 1}^M)$$ : Generate batch proof and output aggregated amounts. In the circuit:
-	- Prove $side_i \in \\{0, 1\\}$ ($i = 1, \ldots, M$)
-	- Prove $comm_i == Poseidon(m_i \| side_i \| salt \| amount_i \| address_i)$ ($i = 1, \ldots, M$)
-	- Compute and output $sum_0, sum_1$,
+- Generate batch proof and output aggregated amounts.
+
+$$
+(\pi_{batch}, sum_0, sum_1 ) \leftarrow BatchProve(salt, \\{(comm_i, amount_i) \\}_{i = 1}^M; \\{side_i,address_i, m_i \\}_{i = 1}^M)
+$$
+
+In the batch opening circuit:
+- Prove $side_i \in \\{0, 1\\}$ ($i = 1, \ldots, M$)
+- Prove $comm_i == Poseidon(m_i \| side_i \| salt \| amount_i \| address_i)$ ($i = 1, \ldots, M$)
+- Compute and output $sum_0, sum_1$,
 
 $$
 sum_0 = \sum_{i = 1}^M (1 - side_i) \times amount_i , \quad sum_1 = \sum_{i = 1}^M side_i \times amount_i
