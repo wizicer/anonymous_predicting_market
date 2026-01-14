@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { WalletProvider } from '@/contexts/WalletContext';
 import { Header } from '@/components/Header';
+import { NetworkStatusBanner } from '@/components/NetworkStatusBanner';
 import { initPoseidon } from '@/services/encryption';
 import { 
   HomePage, 
@@ -27,6 +28,7 @@ function App() {
       <HashRouter>
         <div className="min-h-screen bg-background text-foreground">
           <Header />
+          <NetworkStatusBanner />
           <main className="container mx-auto px-4 py-8">
             <Routes>
               <Route path="/" element={<HomePage />} />

@@ -6,6 +6,20 @@ import type { Market, CommitteeMember } from '@/types';
 let provider: BrowserProvider | null = null;
 let contract: Contract | null = null;
 
+// Expected network configuration
+export const EXPECTED_CHAIN_ID = deployment.chainId;
+export const NETWORK_CONFIG = {
+  chainId: `0x${EXPECTED_CHAIN_ID.toString(16)}`,
+  chainName: 'Mantle Testnet',
+  nativeCurrency: {
+    name: 'MNT',
+    symbol: 'MNT',
+    decimals: 18,
+  },
+  rpcUrls: ['https://rpc.testnet.mantle.xyz'],
+  blockExplorerUrls: ['https://explorer.testnet.mantle.xyz'],
+};
+
 export function getProvider(): BrowserProvider {
   if (!provider && typeof window !== 'undefined' && window.ethereum) {
     provider = new BrowserProvider(window.ethereum);
@@ -28,6 +42,57 @@ export async function getSignedContract(): Promise<Contract> {
   const p = getProvider();
   const signer = await p.getSigner();
   return new Contract(deployment.predictionMarket, PREDICTION_MARKET_ABI, signer);
+}
+
+// ==================== Network Functions ====================
+
+export async function getCurrentChainId(): Promise<number> {
+  const p = getProvider();
+  const network = await p.getNetwork();
+  return Number(network.chainId);
+}
+
+export async function isCorrectNetwork(): Promise<boolean> {
+  try {
+    const currentChainId = await getCurrentChainId();
+    return currentChainId === EXPECTED_CHAIN_ID;
+  } catch (error) {
+    console.error('Failed to check network:', error);
+    return false;
+  }
+}
+
+export async function switchNetwork(): Promise<boolean> {
+  if (!window.ethereum) {
+    throw new Error('No wallet provider available');
+  }
+
+  try {
+    // Try to switch to the network
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: NETWORK_CONFIG.chainId }],
+    });
+    return true;
+  } catch (switchError: unknown) {
+    // This error code indicates that the chain has not been added to MetaMask
+    if (switchError && typeof switchError === 'object' && 'code' in switchError && (switchError as { code: number }).code === 4902) {
+      try {
+        // Add the network
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [NETWORK_CONFIG],
+        });
+        return true;
+      } catch (addError) {
+        console.error('Failed to add network:', addError);
+        return false;
+      }
+    } else {
+      console.error('Failed to switch network:', switchError);
+      return false;
+    }
+  }
 }
 
 // ==================== Market Functions ====================

@@ -6,6 +6,7 @@ import { Wallet, LogOut, History, Shield, Eye, PlusCircle, Home } from 'lucide-r
 import { siGithub } from 'simple-icons';
 import { useState } from 'react';
 import { BetHistoryDialog } from '@/components/BetHistoryDialog';
+import { NetworkSwitch } from '@/components/NetworkSwitch';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
@@ -64,7 +65,8 @@ export function Header() {
                 </svg>
               </Button>
               {isConnected ? (
-                <>
+                <div className="flex items-center gap-2">
+                  <NetworkSwitch />
                   {showHistory ? (<Button
                     variant="ghost"
                     size="sm"
@@ -88,7 +90,7 @@ export function Header() {
                   >
                     <LogOut className="h-4 w-4" />
                   </Button>
-                </>
+                </div>
               ) : (
                 <Button
                   onClick={connect}
