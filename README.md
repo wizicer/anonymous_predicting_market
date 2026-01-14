@@ -57,7 +57,7 @@ The Anonymous Prediction Market operates through three main phases:
 
 ### 1. Committee Setup
 - A decentralized committee of `n` members with threshold `t` performs Distributed Key Generation (DKG)
-- Generates shared private key `sk` and public key `pk` where `pk = g^sk`
+- Generates distributed key shares for an implicit `sk` and derives public key `pk` where `pk = g^sk`
 - At least `t` members must collaborate to recover the private key for decryption
 
 ### 2. Betting Phase
@@ -133,8 +133,7 @@ cd ui && npm install
 
 ```
 ├── contracts/           # Solidity smart contracts
-│   ├── prediction.sol   # Main prediction market contract
-│   └── MockVerifiers.sol # Mock verifiers for local dev
+│   └── prediction.sol   # Main prediction market contract
 ├── circuits/            # Circom ZK circuits
 ├── scripts/             # Deployment scripts
 ├── ui/                  # React frontend
