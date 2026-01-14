@@ -1,5 +1,6 @@
 // @ts-expect-error - snarkjs doesn't have type definitions
 import * as snarkjs from "snarkjs";
+const baseUrl = import.meta.env.BASE_URL;
 
 export interface BatchOpenProof {
   sum0: bigint;
@@ -53,8 +54,8 @@ export async function getBatchOpenProof(
       encodedSidePoint,
     },
   
-    "/circuits/BatchOpen.wasm",
-    "/circuits/BatchOpen_final.zkey"
+    `${baseUrl}circuits/BatchOpen.wasm`,
+    `${baseUrl}circuits/BatchOpen_final.zkey`
   );
 
 

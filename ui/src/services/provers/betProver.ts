@@ -1,5 +1,6 @@
 // @ts-expect-error - snarkjs doesn't have type definitions
 import * as snarkjs from "snarkjs";
+const baseUrl = import.meta.env.BASE_URL;
 
 export interface BetProof {
   encryptedMessage: [bigint, bigint];
@@ -37,8 +38,8 @@ export async function getBetProof(
       encodedSidePoint,
     },
 
-    "/circuits/Bet.wasm",
-    "/circuits/Bet_final.zkey"
+    `${baseUrl}circuits/Bet.wasm`,
+    `${baseUrl}circuits/Bet_final.zkey`
   );
 
   const ep = await snarkjs.groth16.exportSolidityCallData(
