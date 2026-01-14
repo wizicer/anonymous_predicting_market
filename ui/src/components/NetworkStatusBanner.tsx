@@ -11,7 +11,7 @@ export function NetworkStatusBanner() {
   return (
     <div className="sticky top-16 z-40 w-full border-b border-orange-500/20 bg-orange-500/10 backdrop-blur">
       <div className="container mx-auto px-4 py-3">
-        <NetworkSwitch />
+        <NetworkSwitch showFullAlert={true} />
       </div>
     </div>
   );

@@ -63,8 +63,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
     const handleChainChanged = (...args: unknown[]) => {
       const chainId = args[0] as string;
-      setCurrentChainId(parseInt(chainId, 16));
-      setIsCorrectNetwork(parseInt(chainId, 16) === EXPECTED_CHAIN_ID);
+      const numericChainId = parseInt(chainId, 16);
+      setCurrentChainId(numericChainId);
+      setIsCorrectNetwork(numericChainId === EXPECTED_CHAIN_ID);
     };
 
     window.ethereum.on('chainChanged', handleChainChanged);

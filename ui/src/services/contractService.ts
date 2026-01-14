@@ -6,19 +6,34 @@ import type { Market, CommitteeMember } from '@/types';
 let provider: BrowserProvider | null = null;
 let contract: Contract | null = null;
 
-// Expected network configuration
-export const EXPECTED_CHAIN_ID = deployment.chainId;
-export const NETWORK_CONFIG = {
-  chainId: `0x${EXPECTED_CHAIN_ID.toString(16)}`,
-  chainName: 'Mantle Testnet',
-  nativeCurrency: {
-    name: 'MNT',
-    symbol: 'MNT',
-    decimals: 18,
+// Network configurations for multiple supported networks
+export const SUPPORTED_NETWORKS = {
+  31337: {
+    chainId: '0x7a65',
+    chainName: 'Local Testnet',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    rpcUrls: ['http://127.0.0.1:8545'],
+    blockExplorerUrls: [],
   },
-  rpcUrls: ['https://rpc.testnet.mantle.xyz'],
-  blockExplorerUrls: ['https://explorer.testnet.mantle.xyz'],
-};
+  5003: {
+    chainId: '0x138b',
+    chainName: 'Mantle Testnet',
+    nativeCurrency: {
+      name: 'MNT',
+      symbol: 'MNT',
+      decimals: 18,
+    },
+    rpcUrls: ['https://rpc.testnet.mantle.xyz'],
+    blockExplorerUrls: ['https://explorer.testnet.mantle.xyz'],
+  },
+} as const;
+
+export const EXPECTED_CHAIN_ID = deployment.chainId;
+export const NETWORK_CONFIG = SUPPORTED_NETWORKS[EXPECTED_CHAIN_ID as keyof typeof SUPPORTED_NETWORKS];
 
 export function getProvider(): BrowserProvider {
   if (!provider && typeof window !== 'undefined' && window.ethereum) {
@@ -62,13 +77,17 @@ export async function isCorrectNetwork(): Promise<boolean> {
   }
 }
 
+export function getCurrentNetworkConfig(chainId: number) {
+  return SUPPORTED_NETWORKS[chainId as keyof typeof SUPPORTED_NETWORKS];
+}
+
 export async function switchNetwork(): Promise<boolean> {
   if (!window.ethereum) {
     throw new Error('No wallet provider available');
   }
 
   try {
-    // Try to switch to the network
+    // Try to switch to the expected network based on deployment
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: NETWORK_CONFIG.chainId }],
