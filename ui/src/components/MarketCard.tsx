@@ -89,7 +89,7 @@ export function MarketCard({ market }: MarketCardProps) {
           <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/50">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="h-4 w-4" />
-              <span>{formatAmount(market.totalVolume)} ETH</span>
+              <span>{formatAmount(market.totalVolume)} MNT</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Lock className="h-4 w-4" />

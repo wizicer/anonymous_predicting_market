@@ -176,7 +176,7 @@ export async function getMarket(marketId: bigint): Promise<Market> {
     commitment: bet.commitment,
     encryptedData: `${bet.cypherTextX.toString()},${bet.cypherTextY.toString()}`,
     timestamp: new Date(Number(bet.timestamp) * 1000),
-    amount: Number(bet.amount) / 1e18, // Convert from wei to ETH
+    amount: Number(bet.amount) / 1e18, // Convert from wei to MNT
     proof: bet.verified ? 'verified' : undefined,
   }));
   

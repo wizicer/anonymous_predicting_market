@@ -61,7 +61,7 @@ export function BetHistoryDialog({ open, onOpenChange }: BetHistoryDialogProps) 
                     </div>
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span className={bet.position === 'yes' ? 'text-green-400' : 'text-red-400'}>
-                        {bet.position.toUpperCase()} • {formatAmount(bet.amount)} ETH
+                        {bet.position.toUpperCase()} • {formatAmount(bet.amount)} MNT
                       </span>
                       <span>{formatDate(bet.timestamp)}</span>
                     </div>

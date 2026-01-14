@@ -137,7 +137,7 @@ export function AlgoTestPage() {
       
       const side = 1; // YES bet
       const salt = BigInt(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
-      const amount = BigInt(1e18); // 1 ETH in wei
+      const amount = BigInt(1e18); // 1 MNT in wei
       const bettorAddress = BigInt('0x1234567890123456789012345678901234567890');
       
       const inputs = await genCircomInputsForBet(

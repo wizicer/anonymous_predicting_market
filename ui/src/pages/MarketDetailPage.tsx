@@ -132,7 +132,7 @@ export function MarketDetailPage() {
         betAmount
       );
       
-      toast.success(`Bet placed: ${betAmount} ETH on ${selectedPosition.toUpperCase()}`, {
+      toast.success(`Bet placed: ${betAmount} MNT on ${selectedPosition.toUpperCase()}`, {
         description: 'Your bet has been verified and submitted',
       });
       setBetAmount('');
@@ -264,7 +264,7 @@ export function MarketDetailPage() {
                       </Button>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="amount">Amount (ETH)</Label>
+                      <Label htmlFor="amount">Amount (MNT)</Label>
                       <div className="flex flex-wrap gap-2">
                         {quickAmounts.map((amount) => (
                           <Button
@@ -371,7 +371,7 @@ export function MarketDetailPage() {
                           </span>
                         )}
                         <p className="text-sm text-muted-foreground">
-                          {bet.amount != null ? formatAmount(bet.amount) : '--'} ETH
+                          {bet.amount != null ? formatAmount(bet.amount) : '--'} MNT
                         </p>
                       </div>
                     </div>
@@ -399,7 +399,7 @@ export function MarketDetailPage() {
                 <span className="text-muted-foreground flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" /> Volume
                 </span>
-                <span className="font-mono">{formatAmount(market.totalVolume)} ETH</span>
+                <span className="font-mono">{formatAmount(market.totalVolume)} MNT</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground flex items-center gap-2">
