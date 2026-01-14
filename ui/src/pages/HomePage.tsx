@@ -1,5 +1,6 @@
 import { MarketCard } from '@/components/MarketCard';
-import { Shield, Lock, Eye, Zap, Loader2 } from 'lucide-react';
+import { Shield, Lock, Eye, Zap, Loader2, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import type { Market, MarketStatus } from '@/types';
 import { useState, useEffect } from 'react';
 import { getAllMarkets, isDeployed } from '@/services/contractService';
@@ -93,6 +94,25 @@ export function HomePage() {
           Place bets without revealing your position. Your predictions are encrypted until market resolution, 
           ensuring fair and manipulation-free trading.
         </p>
+        
+        {/* CTA Button */}
+        <div className="pt-8">
+          <Button
+            onClick={() => window.open('https://github.com/wizicer/anonymous_predicting_market/blob/main/docs/protocol.md', '_blank')}
+            size="lg"
+            className="group relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white border-0 shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 transform hover:scale-105 px-12 py-4 text-lg font-semibold"
+          >
+            <span className="relative z-10 flex items-center gap-3">
+              <BookOpen className="h-5 w-5" />
+              Read the Protocol
+              <BookOpen className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          </Button>
+          <p className="text-sm text-muted-foreground mt-3">
+            Deep dive into the cryptographic mechanisms powering anonymous betting
+          </p>
+        </div>
         
         {/* Features Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-8">
