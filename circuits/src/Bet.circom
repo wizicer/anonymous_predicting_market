@@ -7,8 +7,8 @@ include "encrypt.circom";
 /*
 ZK-Bet Circuit Prototype
 public: PK, comm, amount, address, salt
-private: side
-output: ct  (ciphertext placeholder)
+private: side, nonceKey, encodedSidePoint
+output: encryptedMessage, ephemeralKey
 */
 
 template Bet() {
@@ -41,19 +41,14 @@ template Bet() {
 
     // ============================================================
     // 2. "Encryption" :
-    //    ct := Enc(PK, side || address)
-    //    Using ElGamal Encryption Gadget
+    //    ct := Enc(PK, encodedSidePoint)
     // ============================================================
-
     component encrypt = Encrypt();
     encrypt.message <== encodedSidePoint;
-    encrypt.nonceKey <== nonceKey;
+    encrypt.nonceKey <== nonceKey; 
     encrypt.publicKey <== PK;
     encryptedMessage <== encrypt.encryptedMessage;
-    ephemeralKey <== encrypt.ephemeralKey;
-    log("encryptedMessage:", encryptedMessage[0], encryptedMessage[1]);
-    log("ephemeralKey:", ephemeralKey[0], ephemeralKey[1]);
-
+    ephemeralKey <== encrypt.ephemeralKey; 
     // ============================================================
     // 3. Commitment check:
     //    comm == Poseidon(encodedSidePoint[0] || encodedSidePoint[1]
@@ -66,8 +61,6 @@ template Bet() {
     commHash.inputs[3] <== salt;
     commHash.inputs[4] <== amount;
     commHash.inputs[5] <== address;
-    log("commHash.out:", commHash.out);
-    log("comm:", comm);
     commHash.out === comm;
 
     // ============================================================

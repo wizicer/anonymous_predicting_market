@@ -12,16 +12,18 @@ public inputs:
     salt
 private inputs:
     side[i]
+    encodedSidePoint[i][0]
+    encodedSidePoint[i][1]
     address[i]
 
 public outputs:
     sum0, sum1
 
 statement:
-1. for all valid i: comm[i] = Poseidon(encodedSidePoint[i][0] || encodedSidePoint[i][1] || side || salt || amount[i] || address[i])
-2. side[i] ∈ {0,1}
+1. for all valid i: comm[i] = Poseidon(encodedSidePoint[i][0] || encodedSidePoint[i][1] || side[i] || salt || amount[i] || address[i])
+2. for all valid i: side[i] ∈ {0,1}
 3. sum0 = Σ( (1 - side[i]) * amount[i] )
-   sum1 = Σ( side[i] * amount[i] )
+4. sum1 = Σ( side[i] * amount[i] )
 */
 
 template BatchOpen(N) {
