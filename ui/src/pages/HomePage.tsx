@@ -63,25 +63,9 @@ export function HomePage() {
     return acc;
   }, {} as Record<MarketStatus, Market[]>);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-24 space-y-4">
-        <p className="text-muted-foreground">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-12">
-      {/* Hero Section */}
+      {/* Hero Section - Always Visible */}
       <section className="text-center py-12 space-y-6">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm">
           <Shield className="h-4 w-4" />
@@ -126,34 +110,51 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Markets by Status */}
-      {statusOrder.map(status => {
-        const markets = marketsByStatus[status];
-        if (markets.length === 0) return null;
-        
-        const titles: Record<MarketStatus, string> = {
-          preparing: 'Preparing Markets',
-          active: 'Active Markets',
-          expired: 'Awaiting Resolution',
-          resolved: 'Resolved Markets',
-        };
-        
-        return (
-          <section key={status} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">{titles[status]}</h2>
-              <span className="text-sm text-muted-foreground">
-                {markets.length} market{markets.length !== 1 ? 's' : ''}
-              </span>
+      {/* Markets Section - Only when available */}
+      {isLoading ? (
+        <section className="text-center py-12">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground mt-4">Loading markets...</p>
+        </section>
+      ) : error ? (
+        <section className="text-center py-12">
+          <div className="max-w-md mx-auto space-y-4">
+            <div className="p-6 rounded-lg bg-card/50 border border-border/50">
+              <p className="text-muted-foreground">{error}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {markets.map(market => (
-                <MarketCard key={market.id} market={market} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+          </div>
+        </section>
+      ) : (
+        statusOrder.map(status => {
+          const markets = marketsByStatus[status];
+          if (markets.length === 0) return null;
+          
+          const titles: Record<MarketStatus, string> = {
+            preparing: 'Preparing Markets',
+            active: 'Active Markets',
+            expired: 'Awaiting Resolution',
+            resolved: 'Resolved Markets',
+          };
+          
+          return (
+            <section key={status} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">{titles[status]}</h2>
+                <span className="text-sm text-muted-foreground">
+                  {markets.length} market{markets.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {markets.map(market => (
+                  <MarketCard key={market.id} market={market} />
+                ))}
+              </div>
+            </section>
+          );
+        })
+      )}
     </div>
   );
 }
