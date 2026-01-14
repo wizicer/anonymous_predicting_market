@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useWallet } from '@/contexts/useWallet';
 import { truncateAddress } from '@/lib/utils';
 import { Wallet, LogOut, History, Shield, Eye, PlusCircle, Home } from 'lucide-react';
+import { siGithub } from 'simple-icons';
 import { useState } from 'react';
 import { BetHistoryDialog } from '@/components/BetHistoryDialog';
 
@@ -50,8 +51,18 @@ export function Header() {
               ))}
             </nav>
 
-            {/* Wallet */}
+            {/* Wallet & Links */}
             <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => window.open('https://github.com/wizicer/anonymous_predicting_market', '_blank')}
+                title="View on GitHub"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d={siGithub.path} />
+                </svg>
+              </Button>
               {isConnected ? (
                 <>
                   {showHistory ? (<Button
